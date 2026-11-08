@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shamim's English
 
-## Getting Started
+An online English learning platform built with **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4**, **shadcn/ui** and **Supabase**.
 
-First, run the development server:
+> **Status:** Phase 1 — project foundation (structure, design system, layout, Supabase wiring).
+
+---
+
+## Getting started
+
+You need **Node.js 20 or newer** installed.
 
 ```bash
+# 1. Install the packages
+npm install
+
+# 2. Create your local settings file
+cp .env.example .env.local      # then open .env.local and paste your Supabase keys
+
+# 3. Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000> in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The site runs without Supabase keys. Login and database features need them.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Useful commands
 
-## Learn More
+| Command         | What it does                                 |
+| --------------- | -------------------------------------------- |
+| `npm run dev`   | Start the site locally with live reload      |
+| `npm run build` | Build the production version (checks errors) |
+| `npm run start` | Run the production build                     |
+| `npm run lint`  | Check the code for common mistakes           |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Folder structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/                    # Pages (each folder = a URL)
+│   ├── layout.tsx          # Wraps every page: header, footer, fonts
+│   ├── page.tsx            # Home page (placeholder for now)
+│   └── globals.css         # Colors, fonts, typography — the design system
+├── components/
+│   ├── ui/                 # shadcn/ui building blocks (Button, Card, Sheet…)
+│   ├── layout/             # Header, footer, mobile menu, Container, Section
+│   └── shared/             # Reusable site pieces (Logo, …)
+├── config/
+│   └── site.ts             # Site name, description and menu links
+├── lib/
+│   ├── fonts.ts            # Font setup
+│   ├── utils.ts            # cn() helper for combining CSS classes
+│   └── supabase/           # Supabase clients (browser, server, proxy)
+└── proxy.ts                # Runs before each request (keeps logins fresh)
+```
 
-## Deploy on Vercel
+**Rule of thumb:** pages go in `app/`, reusable pieces go in `components/`, settings go in `config/`, and helpers go in `lib/`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Design system
+
+All colors are defined once in [`src/app/globals.css`](src/app/globals.css). Change them there and the whole site updates.
+
+| Token       | Use for                         | Tailwind class example            |
+| ----------- | ------------------------------- | --------------------------------- |
+| `primary`   | Main brand color (deep indigo)  | `bg-primary`, `text-primary`      |
+| `highlight` | Warm amber for emphasis & CTAs  | `bg-highlight`                    |
+| `secondary` | Soft indigo tint surfaces       | `bg-secondary`                    |
+| `muted`     | Quiet backgrounds & helper text | `bg-muted`, `text-muted-foreground` |
+| `success` / `destructive` | Status messages   | `text-success`                    |
+
+**Fonts:** *Plus Jakarta Sans* for headings and *Inter* for body text.
+
+**Text styles** (responsive, grow on bigger screens):
+`text-display` · `text-h1` · `text-h2` · `text-h3` · `text-lead`
+
+**Breakpoints:** phone (default) → `sm` 640px → `md` 768px (tablet) → `lg` 1024px (desktop) → `xl` 1280px.
+
+### Adding more shadcn/ui components
+
+```bash
+npx shadcn@latest add dialog tabs avatar
+```
+
+They appear in `src/components/ui/`.
+
+---
+
+## Supabase
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. In the project dashboard, open **Connect** (or **Project Settings → API**).
+3. Copy the **Project URL** and the **publishable (anon) key** into `.env.local`.
+
+Which client to use:
+
+- **In Client Components** (`"use client"`): `import { createClient } from "@/lib/supabase/client"`
+- **In Server Components / Server Actions**: `import { createClient } from "@/lib/supabase/server"`
+
+Never commit `.env.local`. It is already ignored by git.
