@@ -1,9 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { authNav, mainNav } from "@/config/site";
-import { buttonClass } from "@/lib/button-class";
+import { mainNav } from "@/config/site";
 import { Logo } from "@/components/shared/logo";
 import { Container } from "./container";
-import { MobileNav } from "./mobile-nav";
+import { HeaderActions, HeaderActionsFallback } from "./header-actions";
 
 export function SiteHeader() {
   return (
@@ -24,30 +24,10 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href={authNav.login.href}
-            className={buttonClass({
-              variant: "ghost",
-              size: "lg",
-              className: "hidden px-3 sm:inline-flex",
-            })}
-          >
-            {authNav.login.title}
-          </Link>
-          <Link
-            href={authNav.register.href}
-            className={buttonClass({
-              size: "lg",
-              className: "hidden px-4 sm:inline-flex",
-            })}
-          >
-            {authNav.register.title}
-          </Link>
-
-          {/* Phone & tablet navigation */}
-          <MobileNav />
-        </div>
+        {/* Login/Register or Dashboard/Logout, depending on the session */}
+        <Suspense fallback={<HeaderActionsFallback />}>
+          <HeaderActions />
+        </Suspense>
       </Container>
     </header>
   );

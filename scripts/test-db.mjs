@@ -67,13 +67,16 @@ async function expectError(name, fn, pattern) {
 const mk = async (email, meta) =>
   (await db.query("insert into auth.users (email, raw_user_meta_data) values ($1, $2) returning id",
     [email, JSON.stringify(meta)])).rows[0].id;
-const aId = await mk("a@test.com", { full_name: "Student A", phone: "017", role: "admin" });
+const aId = await mk("a@test.com", { full_name: "Student A", phone: "017", college: "Chittagong College", role: "admin" });
 const bId = await mk("b@test.com", { full_name: "Student B" });
 const adminId = await mk("admin@test.com", { full_name: "Admin" });
 
-const p = await db.query("select id, full_name, role from public.profiles order by email");
+const p = await db.query("select id, full_name, role, student_id, college, phone from public.profiles order by email");
 check("signup trigger created 3 profiles", p.rows.length === 3);
 check("metadata 'role: admin' is ignored at signup", p.rows.every((r) => r.role === "student"));
+check("every profile gets a Student ID like SE2600001", p.rows.every((r) => /^SE\d{7}$/.test(r.student_id)));
+check("Student IDs are unique", new Set(p.rows.map((r) => r.student_id)).size === 3);
+check("phone saved from sign-up data", p.rows.find((r) => r.id === aId)?.phone === "017");
 
 // Promote admin from SQL editor (auth.uid() is null) â€” allowed
 await db.query("update public.profiles set role = 'admin' where id = $1", [adminId]);
@@ -92,6 +95,9 @@ check("student can update own name", (await db.query("select full_name from publ
 await expectError("student cannot make self admin", () => as(A, "update public.profiles set role='admin' where id=$1", [aId]), /Only admins/);
 const bUpd = await as(A, "update public.profiles set full_name='hacked' where id=$1 returning id", [bId]);
 check("student cannot update another profile", bUpd.rows.length === 0);
+check("college saved from sign-up data", (await as(A, "select college from public.profiles")).rows[0].college === "Chittagong College");
+await expectError("student cannot change Student ID", () => as(A, "update public.profiles set student_id='SE0000001' where id=$1", [aId]), /cannot be changed/);
+await expectError("admin cannot change Student ID either", () => as(ADMIN, "update public.profiles set student_id='SE0000001' where id=$1", [aId]), /cannot be changed/);
 await expectError("student cannot insert profiles", () => as(A, "insert into public.profiles (id) values (gen_random_uuid())"));
 
 console.log("\ncourses & content");
@@ -106,7 +112,8 @@ const dsubj = (await as(ADMIN, "insert into public.subjects (course_id,title) va
 
 check("anon sees only published course", (await as(anon, "select id from public.courses")).rows.length === 1);
 check("admin sees draft too", (await as(ADMIN, "select id from public.courses")).rows.length === 2);
-check("anon sees subjects of published course only", (await as(anon, "select id from public.subjects")).rows.length === 1);
+const anonSubjects = (await as(anon, "select id from public.subjects")).rows;
+check("anon sees subjects of published course only", anonSubjects.length === 1 && anonSubjects[0].id !== dsubj);
 check("anon sees chapters", (await as(anon, "select id from public.chapters")).rows.length === 1);
 const anonLessons = (await as(anon, "select id, video_url from public.lessons")).rows;
 check("anon sees only free-preview lesson", anonLessons.length === 1 && anonLessons[0].id === freeL);

@@ -10,6 +10,7 @@ The database is defined by the SQL files in [`migrations/`](migrations/). Run th
 | `…04_payments_enrollments.sql` | `payments`, `enrollments`; `is_enrolled()` |
 | `…05_notices_progress.sql` | `notices`, `lesson_progress` |
 | `…06_rls_policies.sql` | All security rules, plus `get_course_curriculum()` |
+| `…07_student_id_and_college.sql` | Auto-generated Student ID; college name saved at sign-up |
 
 ## How the tables connect
 
@@ -51,7 +52,7 @@ You only need **one** of the two options below.
 1. Open your project at [supabase.com/dashboard](https://supabase.com/dashboard).
 2. In the left menu, click **SQL Editor**, then **New query**.
 3. Open `migrations/20261108000001_types_and_helpers.sql` in VS Code, copy everything, paste it into the editor and click **Run**.
-4. Repeat step 3 for each file **in number order** (`…02`, `…03`, … `…06`).
+4. Repeat step 3 for each file **in number order** (`…02`, `…03`, … up to the last one).
 5. Open **Table Editor**. You should see the 10 tables, each marked as RLS-enabled.
 
 > If a file fails halfway, fix the problem and run that file again before moving on. Never skip a file.
@@ -71,6 +72,38 @@ When a later phase adds a migration, just run `npx supabase db push` again.
 
 ---
 
+## Authentication settings (one-time, in the Supabase dashboard)
+
+Student login uses **Supabase Auth** with email + password. In your project dashboard:
+
+1. **Authentication → Sign In / Providers → Email**
+   - Turn **Enable Email provider** on.
+   - Turn **Confirm email** on, so students must verify their email.
+   - Optional but recommended: set **Minimum password length** to `8`.
+2. **Authentication → URL Configuration**
+   - **Site URL:** your live address, e.g. `https://shamimsenglish.com` (use `http://localhost:3000` while developing).
+   - **Redirect URLs:** add both of these:
+     - `http://localhost:3000/auth/confirm`
+     - `https://YOUR-LIVE-DOMAIN/auth/confirm`
+3. **Authentication → Emails (Templates)**, recommended. With these templates, links work even when the student opens the email on a different phone or computer:
+   - **Confirm signup**, replace the link with:
+     ```html
+     <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/dashboard">Verify my email</a>
+     ```
+   - **Reset password**, replace the link with:
+     ```html
+     <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password">Reset my password</a>
+     ```
+   The default templates also work, but only when the link is opened in the same browser that requested it.
+4. **Custom SMTP (before going live):** Supabase's built-in email sender only allows a few emails per hour. Under **Authentication → Emails → SMTP Settings**, connect a real email service (for example Resend, Brevo or Amazon SES).
+
+The app also needs `NEXT_PUBLIC_SITE_URL` in `.env.local` (and on your host) to match the address students use. Email links are built from it.
+
+### How the Student ID works
+
+Every new account automatically gets a permanent, unique Student ID, for example **`SE2600001`**:
+`SE` = Shamim's English, `26` = sign-up year, followed by a 5-digit running number. It is created by the database (migration `…07`), so it can't be faked from the browser, and nobody, not even an admin, can change it.
+
 ## Make yourself an admin
 
 Everyone who signs up becomes a **student**. To promote an account, sign up on the site first, then run this in the **SQL Editor**:
@@ -89,7 +122,7 @@ This only works from the dashboard or with the service role. The app itself can 
 npm run test:db
 ```
 
-This runs every migration in a temporary in-memory Postgres and checks 45 security rules (for example: "student B cannot see A's payment"). Run it after changing any migration.
+This runs every migration in a temporary in-memory Postgres and checks 51 security rules (for example: "student B cannot see A's payment"). Run it after changing any migration.
 
 ## Security notes
 

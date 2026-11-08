@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { LayoutDashboard, Menu } from "lucide-react";
 import { authNav, mainNav } from "@/config/site";
 import { Button } from "@/components/ui/button";
 import { buttonClass } from "@/lib/button-class";
@@ -14,9 +14,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Logo } from "@/components/shared/logo";
+import { logout } from "@/app/(auth)/actions";
 
 /** Slide-in menu shown on phones and tablets (hidden from the lg breakpoint up). */
-export function MobileNav() {
+export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -56,20 +57,40 @@ export function MobileNav() {
         </nav>
 
         <div className="mt-auto flex flex-col gap-2 border-t p-4">
-          <Link
-            href={authNav.login.href}
-            onClick={close}
-            className={buttonClass({ variant: "outline", size: "lg", className: "h-11" })}
-          >
-            {authNav.login.title}
-          </Link>
-          <Link
-            href={authNav.register.href}
-            onClick={close}
-            className={buttonClass({ size: "lg", className: "h-11" })}
-          >
-            {authNav.register.title}
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link
+                href="/dashboard"
+                onClick={close}
+                className={buttonClass({ size: "lg", className: "h-11" })}
+              >
+                <LayoutDashboard data-icon="inline-start" aria-hidden />
+                Dashboard
+              </Link>
+              <form action={logout}>
+                <Button type="submit" variant="outline" size="lg" className="h-11 w-full">
+                  Logout
+                </Button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link
+                href={authNav.login.href}
+                onClick={close}
+                className={buttonClass({ variant: "outline", size: "lg", className: "h-11" })}
+              >
+                {authNav.login.title}
+              </Link>
+              <Link
+                href={authNav.register.href}
+                onClick={close}
+                className={buttonClass({ size: "lg", className: "h-11" })}
+              >
+                {authNav.register.title}
+              </Link>
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>
