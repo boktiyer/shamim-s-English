@@ -1,18 +1,18 @@
 import Link from "next/link";
-import { mainNav } from "@/config/site";
-import { buttonVariants } from "@/components/ui/button";
+import { authNav, mainNav } from "@/config/site";
+import { buttonClass } from "@/lib/button-class";
 import { Logo } from "@/components/shared/logo";
 import { Container } from "./container";
 import { MobileNav } from "./mobile-nav";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/70">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/85 backdrop-blur supports-backdrop-filter:bg-background/70">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Logo />
 
-        {/* Desktop & tablet navigation */}
-        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+        {/* Desktop navigation (large screens) */}
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
           {mainNav.map((item) => (
             <Link
               key={item.href}
@@ -24,23 +24,30 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="flex items-center gap-2">
           <Link
-            href="/login"
-            className={buttonVariants({ variant: "ghost", size: "lg" })}
+            href={authNav.login.href}
+            className={buttonClass({
+              variant: "ghost",
+              size: "lg",
+              className: "hidden px-3 sm:inline-flex",
+            })}
           >
-            Log in
+            {authNav.login.title}
           </Link>
           <Link
-            href="/courses"
-            className={buttonVariants({ size: "lg", className: "px-4" })}
+            href={authNav.register.href}
+            className={buttonClass({
+              size: "lg",
+              className: "hidden px-4 sm:inline-flex",
+            })}
           >
-            Start Learning
+            {authNav.register.title}
           </Link>
-        </div>
 
-        {/* Mobile navigation */}
-        <MobileNav />
+          {/* Phone & tablet navigation */}
+          <MobileNav />
+        </div>
       </Container>
     </header>
   );

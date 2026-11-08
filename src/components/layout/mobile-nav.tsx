@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu } from "lucide-react";
-import { mainNav } from "@/config/site";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { authNav, mainNav } from "@/config/site";
+import { Button } from "@/components/ui/button";
+import { buttonClass } from "@/lib/button-class";
 import {
   Sheet,
   SheetContent,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Logo } from "@/components/shared/logo";
 
-/** Slide-in menu shown on phones (hidden from the md breakpoint up). */
+/** Slide-in menu shown on phones and tablets (hidden from the lg breakpoint up). */
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -26,7 +27,7 @@ export function MobileNav() {
           <Button
             variant="ghost"
             size="icon-lg"
-            className="md:hidden"
+            className="lg:hidden"
             aria-label="Open menu"
           />
         }
@@ -56,18 +57,18 @@ export function MobileNav() {
 
         <div className="mt-auto flex flex-col gap-2 border-t p-4">
           <Link
-            href="/login"
+            href={authNav.login.href}
             onClick={close}
-            className={buttonVariants({ variant: "outline", size: "lg" })}
+            className={buttonClass({ variant: "outline", size: "lg", className: "h-11" })}
           >
-            Log in
+            {authNav.login.title}
           </Link>
           <Link
-            href="/courses"
+            href={authNav.register.href}
             onClick={close}
-            className={buttonVariants({ size: "lg" })}
+            className={buttonClass({ size: "lg", className: "h-11" })}
           >
-            Start Learning
+            {authNav.register.title}
           </Link>
         </div>
       </SheetContent>

@@ -21,8 +21,10 @@
 
 @theme inline {
   /* Typography: fonts are loaded in src/lib/fonts.ts */
-  --font-sans: var(--font-body);
-  --font-heading: var(--font-display);
+  /* Bangla characters automatically fall back to Hind Siliguri */
+  --font-sans: var(--font-body), var(--font-bangla), ui-sans-serif, sans-serif;
+  --font-heading: var(--font-display), var(--font-bangla), ui-sans-serif, sans-serif;
+  --font-bangla: var(--font-bangla);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Semantic colors (used by shadcn/ui and our components) */

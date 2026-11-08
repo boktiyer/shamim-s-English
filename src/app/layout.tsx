@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { siteConfig } from "@/config/site";
-import { fontBody, fontDisplay } from "@/lib/fonts";
+import { fontBangla, fontBody, fontDisplay } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -23,7 +23,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={cn(fontBody.variable, fontDisplay.variable, "h-full")}
+      className={cn(
+        fontBody.variable,
+        fontDisplay.variable,
+        fontBangla.variable,
+        "h-full"
+      )}
     >
       <body className="flex min-h-full flex-col">
         <SiteHeader />

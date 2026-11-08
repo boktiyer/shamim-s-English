@@ -57,6 +57,24 @@ src/
 └── proxy.ts                # Runs before each request (keeps logins fresh)
 ```
 
+### Editing homepage content
+
+The homepage text, courses, books, testimonials and FAQs are dummy data. Edit them here:
+
+| What                                   | File                                         |
+| -------------------------------------- | -------------------------------------------- |
+| Courses & categories                   | `src/data/courses.ts`                        |
+| Books                                  | `src/data/books.ts`                          |
+| Teacher bio, stats, features, reviews, FAQ | `src/data/home.ts`                       |
+| Phone, email, address, social links    | `src/config/site.ts`                         |
+
+**Adding real photos:** put the image in `public/images/` (e.g. `public/images/shamim-sir.jpg`), then set
+`photo: "/images/shamim-sir.jpg"` in `src/data/home.ts`. Courses (`image`) and books (`cover`) work the same way.
+Until then, styled placeholders are shown.
+
+**Button-styled links:** use `buttonClass()` from `@/lib/button-class`, e.g.
+`<Link className={buttonClass({ size: "lg", className: "px-6" })}>`.
+
 **Rule of thumb:** pages go in `app/`, reusable pieces go in `components/`, settings go in `config/`, and helpers go in `lib/`.
 
 ---
