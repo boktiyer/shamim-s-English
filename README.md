@@ -114,6 +114,8 @@ They appear in `src/components/ui/`.
 2. In the project dashboard, open **Connect** (or **Project Settings → API**).
 3. Copy the **Project URL** and the **publishable (anon) key** into `.env.local`.
 
+4. Create the database tables: follow **[supabase/README.md](supabase/README.md)** (copy-paste in the SQL Editor, or `npx supabase db push`).
+
 Which client to use:
 
 - **In Client Components** (`"use client"`): `import { createClient } from "@/lib/supabase/client"`
