@@ -20,7 +20,7 @@ export function AboutTeacher() {
           <div className="absolute -right-3 -bottom-5 flex items-center gap-3 rounded-2xl bg-primary p-4 text-primary-foreground shadow-lg sm:-right-6">
             <Award className="size-8 text-highlight" aria-hidden />
             <div>
-              <p className="font-heading text-2xl leading-none font-bold">12+</p>
+              <p className="font-heading text-2xl leading-none font-bold">5+</p>
               <p className="mt-1 text-xs text-primary-foreground/80">Years of teaching</p>
             </div>
           </div>

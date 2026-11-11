@@ -1,26 +1,26 @@
 /** Dummy homepage content: stats, features, testimonials and FAQs. */
 
 export const heroStats = [
-  { value: "25,000+", label: "Students" },
-  { value: "12+", label: "Years Teaching" },
+  { value: "1,500+", label: "Students" },
+  { value: "5+", label: "Years Teaching" },
   { value: "4.9★", label: "Average Rating" },
 ];
 
 export const teacher = {
   name: "MMH Shamim",
   title: "Shamim Sir (CU)",
-  photo: "/images/shamim-sir.png" as string | undefined,
+  photo: "/images/shamim-sir.jpg" as string | undefined,
   qualification: "Ranked in DU B, CU B (English), CU A & GST · Co-Writer, Aspect Series",
   bio: [
-    "Shamim Sir has been teaching English to HSC and admission candidates for more than a decade. His classes turn difficult grammar rules into simple, memorable patterns that students can use in the exam hall.",
-    "Thousands of his students have achieved GPA 5 in English and secured seats at top public universities, medical colleges and engineering institutes across Bangladesh.",
+    "Shamim Sir has been teaching English to HSC and admission candidates for over 5 years. His classes turn difficult grammar rules into simple, memorable patterns that students can use in the exam hall.",
+    "More than 1,000 of his students have achieved GPA 5 in English and secured seats at top public universities, medical colleges and engineering institutes across Bangladesh.",
   ],
   highlights: [
-    "12+ years of classroom & online teaching",
+    "5+ years of classroom & online teaching",
     "Co-Writer, Aspect Series",
     "Ranked in DU B, CU B (English), CU A & GST",
     "Specialist in HSC board & varsity admission English",
-    "Thousands of GPA 5 and admission success stories",
+    "1,000+ GPA 5 and admission success stories",
   ],
 };
 

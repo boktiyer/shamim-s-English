@@ -105,7 +105,7 @@ export function Hero() {
               <Trophy className="size-5" aria-hidden />
             </span>
             <div className="pr-1">
-              <p className="font-heading text-lg leading-none font-bold">5,000+</p>
+              <p className="font-heading text-lg leading-none font-bold">1,000+</p>
               <p className="mt-1 text-xs text-muted-foreground">GPA 5 in English</p>
             </div>
           </div>
