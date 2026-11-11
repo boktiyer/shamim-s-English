@@ -120,6 +120,8 @@ where email = 'your-email@example.com';
 
 This only works from the dashboard or with the service role. The app itself can never turn a student into an admin.
 
+Then log out and back in, and open **`/admin`** (or click **Admin Panel** in the header). From there you can approve payments, grant access, and manage students, courses, lessons, books and notices.
+
 ## Testing the rules locally
 
 ```bash

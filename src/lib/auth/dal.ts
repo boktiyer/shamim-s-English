@@ -37,6 +37,24 @@ export async function requireUser(nextPath = "/dashboard"): Promise<SessionUser>
   return user;
 }
 
+/**
+ * Use in admin pages: returns the admin's profile, sends logged-out users to
+ * login and non-admins to their student dashboard. The role is read from the
+ * database on the server, never from the browser.
+ */
+export async function requireAdmin(nextPath = "/admin"): Promise<StudentProfile> {
+  await requireUser(nextPath);
+  const profile = await getCurrentProfile();
+  if (profile?.role !== "admin") redirect("/dashboard");
+  return profile;
+}
+
+/** Use in admin server actions: the admin's profile, or null if not an admin. */
+export async function getAdmin(): Promise<StudentProfile | null> {
+  const profile = await getCurrentProfile();
+  return profile?.role === "admin" ? profile : null;
+}
+
 export type StudentProfile = {
   id: string;
   student_id: string;

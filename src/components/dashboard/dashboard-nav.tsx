@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Bell, CreditCard, FileText, LayoutDashboard, UserRound } from "lucide-react";
+import { BadgeCheck, BookOpen, Bell, CreditCard, FileText, GraduationCap, LayoutDashboard, Library, UserRound, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const dashboardNav = [
@@ -14,8 +14,22 @@ export const dashboardNav = [
   { title: "Profile", href: "/dashboard/profile", icon: UserRound },
 ];
 
+export const adminNav = [
+  { title: "Overview", href: "/admin", icon: LayoutDashboard },
+  { title: "Approvals", href: "/admin/payments", icon: BadgeCheck },
+  { title: "Enrollments", href: "/admin/enrollments", icon: GraduationCap },
+  { title: "Students", href: "/admin/students", icon: Users },
+  { title: "Courses", href: "/admin/courses", icon: BookOpen },
+  { title: "Books", href: "/admin/books", icon: Library },
+  { title: "Notices", href: "/admin/notices", icon: Bell },
+];
+
+const navs = { student: dashboardNav, admin: adminNav };
+type NavVariant = keyof typeof navs;
+
 function isActive(pathname: string, href: string) {
-  if (href === "/dashboard") return pathname === href;
+  if (href === "/dashboard" || href === "/admin") return pathname === href;
+  if (href === "/admin/courses" && pathname.startsWith("/admin/lessons")) return true;
   return pathname === href || pathname.startsWith(`${href}/`) ||
     (href === "/dashboard/courses" && pathname.startsWith("/dashboard/learn"));
 }
@@ -23,16 +37,16 @@ function isActive(pathname: string, href: string) {
 /**
  * Sidebar on large screens, a horizontally scrolling tab bar on phones/tablets.
  */
-export function DashboardNav() {
-  return <DashboardNavList pathname={usePathname()} />;
+export function DashboardNav({ variant = "student" }: { variant?: NavVariant }) {
+  return <DashboardNavList pathname={usePathname()} variant={variant} />;
 }
 
 /** The link list itself; also used (without a highlight) as the Suspense fallback. */
-export function DashboardNavList({ pathname }: { pathname: string }) {
+export function DashboardNavList({ pathname, variant = "student" }: { pathname: string; variant?: NavVariant }) {
   return (
-    <nav aria-label="Dashboard">
+    <nav aria-label={variant === "admin" ? "Admin" : "Dashboard"}>
       <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:px-0 lg:pb-0">
-        {dashboardNav.map(({ title, href, icon: Icon }) => {
+        {navs[variant].map(({ title, href, icon: Icon }) => {
           const active = isActive(pathname, href);
           return (
             <li key={href} className="shrink-0">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LayoutDashboard } from "lucide-react";
 import { authNav } from "@/config/site";
-import { getCurrentUser } from "@/lib/auth/dal";
+import { getCurrentProfile, getCurrentUser } from "@/lib/auth/dal";
 import { buttonClass } from "@/lib/button-class";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { MobileNav } from "./mobile-nav";
@@ -9,7 +9,8 @@ import { MobileNav } from "./mobile-nav";
 /** Right side of the header. Reads the session, so it renders behind Suspense. */
 export async function HeaderActions() {
   const user = await getCurrentUser();
-  return <HeaderActionsView isLoggedIn={Boolean(user)} />;
+  const isAdmin = user ? (await getCurrentProfile())?.role === "admin" : false;
+  return <HeaderActionsView isLoggedIn={Boolean(user)} isAdmin={isAdmin} />;
 }
 
 /** Shown while the session is being checked (keeps the layout from jumping). */
@@ -22,17 +23,17 @@ export function HeaderActionsFallback() {
   );
 }
 
-function HeaderActionsView({ isLoggedIn }: { isLoggedIn: boolean }) {
+function HeaderActionsView({ isLoggedIn, isAdmin = false }: { isLoggedIn: boolean; isAdmin?: boolean }) {
   return (
     <div className="flex items-center gap-2">
       {isLoggedIn ? (
         <>
           <Link
-            href="/dashboard"
+            href={isAdmin ? "/admin" : "/dashboard"}
             className={buttonClass({ size: "lg", className: "hidden px-4 sm:inline-flex" })}
           >
             <LayoutDashboard data-icon="inline-start" aria-hidden />
-            Dashboard
+            {isAdmin ? "Admin Panel" : "Dashboard"}
           </Link>
           <LogoutButton className="hidden sm:inline-flex" />
         </>
@@ -52,7 +53,7 @@ function HeaderActionsView({ isLoggedIn }: { isLoggedIn: boolean }) {
           </Link>
         </>
       )}
-      <MobileNav isLoggedIn={isLoggedIn} />
+      <MobileNav isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
     </div>
   );
 }

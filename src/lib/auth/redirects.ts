@@ -2,7 +2,7 @@
 export const DEFAULT_AFTER_LOGIN = "/dashboard";
 
 /** Routes that require a logged-in user (checked in the proxy and on the server). */
-export const PROTECTED_PREFIXES = ["/dashboard"];
+export const PROTECTED_PREFIXES = ["/dashboard", "/admin"];
 
 /** Pages a logged-in user doesn't need (they're sent to the dashboard instead). */
 export const GUEST_ONLY_PATHS = ["/login", "/register", "/forgot-password"];

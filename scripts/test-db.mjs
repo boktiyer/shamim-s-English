@@ -169,6 +169,20 @@ check("enrolled A sees general + course notice", (await as(A, "select id from pu
 check("B sees only general notice", (await as(B, "select id from public.notices")).rows.length === 1);
 check("admin sees all notices", (await as(ADMIN, "select id from public.notices")).rows.length === 3);
 
+console.log("\nadmin panel");
+const pay2 = (await as(B, "insert into public.payments (user_id,course_id,amount,method,transaction_id) values ($1,$2,2500,'nagad','TRX-B') returning id", [bId, course])).rows[0].id;
+check("admin sees all payments", (await as(ADMIN, "select id from public.payments")).rows.length === 2);
+await as(ADMIN, "update public.payments set status='completed', verified_by=$1, paid_at=now() where id=$2", [adminId, pay2]);
+await as(ADMIN, "insert into public.enrollments (user_id,course_id,payment_id,status) values ($1,$2,$3,'active') on conflict (user_id,course_id) do update set status='active', payment_id=excluded.payment_id", [bId, course, pay2]);
+check("approve flow: B now has active enrollment", (await as(B, "select status from public.enrollments")).rows[0]?.status === "active");
+check("approve flow: B can read paid lessons", (await as(B, "select id from public.lessons")).rows.length === 2);
+const bEnroll = await as(B, "update public.enrollments set status='cancelled' returning id");
+check("student cannot change own enrollment status", bEnroll.rows.length === 0);
+await as(ADMIN, "update public.enrollments set status='cancelled' where user_id=$1", [bId]);
+check("admin cancel removes B's paid access", (await as(B, "select id from public.lessons")).rows.length === 1);
+const fks = (await db.query("select conname from pg_constraint where conname in ('payments_user_id_fkey','enrollments_user_id_fkey')")).rows;
+check("FK names used by admin queries exist", fks.length === 2);
+
 console.log("\nmisc");
 const before = (await db.query("select updated_at from public.courses where id=$1", [course])).rows[0].updated_at;
 await new Promise((r) => setTimeout(r, 20));

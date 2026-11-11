@@ -17,7 +17,7 @@ import { Logo } from "@/components/shared/logo";
 import { logout } from "@/app/(auth)/actions";
 
 /** Slide-in menu shown on phones and tablets (hidden from the lg breakpoint up). */
-export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+export function MobileNav({ isLoggedIn, isAdmin = false }: { isLoggedIn: boolean; isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -60,12 +60,12 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
           {isLoggedIn ? (
             <>
               <Link
-                href="/dashboard"
+                href={isAdmin ? "/admin" : "/dashboard"}
                 onClick={close}
                 className={buttonClass({ size: "lg", className: "h-11" })}
               >
                 <LayoutDashboard data-icon="inline-start" aria-hidden />
-                Dashboard
+                {isAdmin ? "Admin Panel" : "Dashboard"}
               </Link>
               <form action={logout}>
                 <Button type="submit" variant="outline" size="lg" className="h-11 w-full">
