@@ -104,6 +104,10 @@ The app also needs `NEXT_PUBLIC_SITE_URL` in `.env.local` (and on your host) to 
 Every new account automatically gets a permanent, unique Student ID, for example **`SE2600001`**:
 `SE` = Shamim's English, `26` = sign-up year, followed by a 5-digit running number. It is created by the database (migration `…07`), so it can't be faked from the browser, and nobody, not even an admin, can change it.
 
+## Sample data (optional)
+
+To try the student dashboard, run [`seed.sql`](seed.sql) in the SQL Editor. It adds one course with lessons, notes, notices and a book. The commented block at the end enrolls your test account as an approved student.
+
 ## Make yourself an admin
 
 Everyone who signs up becomes a **student**. To promote an account, sign up on the site first, then run this in the **SQL Editor**:
