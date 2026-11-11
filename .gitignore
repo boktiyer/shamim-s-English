@@ -43,3 +43,7 @@ next-env.d.ts
 
 # generated: all migrations in one file for the SQL Editor
 supabase/setup-all.sql
+
+# local-only: skill shortcuts (recreated by 'npx skills') and Supabase CLI cache
+.claude/skills/
+supabase/.temp/
