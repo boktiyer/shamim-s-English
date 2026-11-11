@@ -31,7 +31,8 @@ export function AboutTeacher() {
           <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">
             About the teacher
           </p>
-          <h2 className="text-h1">Meet {siteConfig.teacherName}</h2>
+          <h2 className="text-h1">Meet {teacher.name}</h2>
+          <p className="mt-1 font-semibold text-primary">{siteConfig.teacherName}</p>
           <p className="mt-2 font-medium text-muted-foreground">{teacher.qualification}</p>
 
           <div className="mt-6 space-y-4 leading-relaxed text-muted-foreground">

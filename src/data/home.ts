@@ -7,18 +7,18 @@ export const heroStats = [
 ];
 
 export const teacher = {
-  name: "Shamim Sir",
+  name: "MMH Shamim",
   title: "Shamim Sir (CU)",
-  /** Put the real photo in /public/images and set e.g. "/images/shamim-sir.jpg" */
-  photo: undefined as string | undefined,
-  qualification: "B.A. (Hons) & M.A. in English, University of Chittagong",
+  photo: "/images/shamim-sir.png" as string | undefined,
+  qualification: "Ranked in DU B, CU B (English), CU A & GST · Co-Writer, Aspect Series",
   bio: [
     "Shamim Sir has been teaching English to HSC and admission candidates for more than a decade. His classes turn difficult grammar rules into simple, memorable patterns that students can use in the exam hall.",
     "Thousands of his students have achieved GPA 5 in English and secured seats at top public universities, medical colleges and engineering institutes across Bangladesh.",
   ],
   highlights: [
     "12+ years of classroom & online teaching",
-    "Author of 4 bestselling English books",
+    "Co-Writer, Aspect Series",
+    "Ranked in DU B, CU B (English), CU A & GST",
     "Specialist in HSC board & varsity admission English",
     "Thousands of GPA 5 and admission success stories",
   ],
