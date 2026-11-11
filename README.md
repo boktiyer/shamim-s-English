@@ -125,6 +125,24 @@ Never commit `.env.local`. It is already ignored by git.
 
 ---
 
+## Enrollment & payments
+
+Students open **Enroll Now** on a published course (`/enroll/<slug>`) and can pay in two ways:
+
+- **Manual bKash / Nagad:** they Send Money to the number in [`src/config/payments.ts`](src/config/payments.ts), then submit their number, the **Transaction ID** and a **screenshot**. An admin approves or rejects it in **Admin → Approvals**, and approval unlocks the course.
+- **Online (SSLCommerz):** after payment, the server confirms it with SSLCommerz's Validation API (amount, currency and transaction must match) before unlocking the course. Payments that SSLCommerz flags as high risk wait for admin approval.
+
+Duplicates are blocked: a Transaction ID can be used only once, and a student can have only one manual payment waiting per course.
+
+**To turn on online payments**, add to `.env.local` (server-only):
+```
+SUPABASE_SECRET_KEY=sb_secret_...     # Supabase → Project Settings → API Keys → Secret keys
+SSLCOMMERZ_STORE_ID=...
+SSLCOMMERZ_STORE_PASSWORD=...
+SSLCOMMERZ_SANDBOX=true               # false when you go live
+```
+Without these, the enroll page shows only the bKash/Nagad option. SSLCommerz's IPN can't reach `localhost`; it works once the site is online.
+
 ## Cloudflare Stream (lesson videos)
 
 Videos are private: they play only through short-lived tokens that the server signs **after** checking the student has an approved, active enrollment. All Cloudflare settings are server-only (no `NEXT_PUBLIC_`).

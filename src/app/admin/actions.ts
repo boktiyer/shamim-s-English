@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getAdmin } from "@/lib/auth/dal";
@@ -108,6 +108,7 @@ export async function createCourse(_p: FormState, fd: FormData): Promise<FormSta
     .select("id")
     .single();
   if (error) return dbError(error);
+  updateTag("courses");
   redirect(`/admin/courses/${data.id}`);
 }
 
@@ -128,6 +129,7 @@ export async function updateCourse(_p: FormState, fd: FormData): Promise<FormSta
         parsed.data.status === "published" && !current?.published_at ? new Date().toISOString() : current?.published_at ?? null,
     })
     .eq("id", id);
+  if (!error) updateTag("courses");
   return error ? dbError(error) : ok("Course saved.");
 }
 
@@ -138,6 +140,7 @@ export async function deleteCourse(_p: FormState, fd: FormData): Promise<FormSta
   const supabase = await createClient();
   const { error } = await supabase.from("courses").delete().eq("id", id);
   if (error) return dbError(error);
+  updateTag("courses");
   redirect("/admin/courses");
 }
 
@@ -366,11 +369,15 @@ export async function approvePayment(_p: FormState, fd: FormData): Promise<FormS
   const supabase = await createClient();
   const { data: payment, error: readError } = await supabase
     .from("payments")
-    .select("id, user_id, course_id, status")
+    .select("id, user_id, course_id, status, method, gateway_status")
     .eq("id", id)
     .single();
   if (readError) return dbError(readError);
   if (payment.status !== "pending") return { error: "This payment was already processed." };
+  // Online payments are confirmed by SSLCommerz itself; only high-risk ones need a person.
+  if (payment.method === "sslcommerz" && payment.gateway_status !== "HIGH_RISK") {
+    return { error: "This online payment was not completed on SSLCommerz, so it cannot be approved." };
+  }
 
   const now = new Date().toISOString();
   const { error } = await supabase

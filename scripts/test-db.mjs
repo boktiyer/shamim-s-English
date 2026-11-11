@@ -218,6 +218,26 @@ const sv = await as(A, "update public.lessons set stream_video_id=null where id=
 check("student cannot change lesson video", sv.rows.length === 0);
 check("non-enrolled student cannot read video id", (await as({ role: "authenticated", id: bUser }, "select stream_video_id from public.lessons where id=$1", [paidL])).rows.length === 0);
 
+console.log("\npayments: manual + sslcommerz rules");
+const C2 = (await as(ADMIN, "insert into public.courses (slug,title,category,status,price) values ('hsc-2028','HSC 2028','hsc_1st','published',8000) returning id")).rows[0].id;
+const S = { role: "authenticated", id: bUser };
+await expectError("wrong amount rejected (must equal course price)", () => as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id) values ($1,$2,10,'bkash','TRX100')", [bUser, C2]));
+await expectError("lower-case/unnormalized TrxID rejected", () => as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id) values ($1,$2,8000,'bkash',' trx100 ')", [bUser, C2]));
+await expectError("screenshot in someone else's folder rejected", () => as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id,screenshot_path) values ($1,$2,8000,'bkash','TRX100',$3)", [bUser, C2, `${aId}/x.jpg`]));
+await expectError("student cannot set gateway fields", () => as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id,val_id) values ($1,$2,8000,'bkash','TRX100','VAL1')", [bUser, C2]));
+await as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id,sender_number,screenshot_path) values ($1,$2,8000,'bkash','TRX100','01712345678',$3)", [bUser, C2, `${bUser}/proof.jpg`]);
+check("valid manual payment accepted", (await as(S, "select id from public.payments where transaction_id='TRX100'")).rows.length === 1);
+await expectError("same TrxID cannot be used twice", () => as(A, "insert into public.payments (user_id,course_id,amount,method,transaction_id) values ($1,$2,8000,'nagad','TRX100')", [aId, C2]));
+await expectError("only one open manual payment per course", () => as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id) values ($1,$2,8000,'nagad','TRX200')", [bUser, C2]));
+await as(S, "insert into public.payments (user_id,course_id,amount,method,transaction_id) values ($1,$2,8000,'sslcommerz','SEONLINE1')", [bUser, C2]);
+check("online (sslcommerz) attempt allowed alongside", (await as(S, "select id from public.payments where method='sslcommerz'")).rows.length === 1);
+check("payment-proofs bucket is private", (await db.query("select public from storage.buckets where id='payment-proofs'")).rows[0]?.public === false);
+await as(S, "insert into storage.objects (bucket_id,name) values ('payment-proofs',$1)", [`${bUser}/proof.jpg`]);
+await expectError("student cannot upload into another student's folder", () => as(S, "insert into storage.objects (bucket_id,name) values ('payment-proofs',$1)", [`${aId}/fake.jpg`]));
+check("student can read own proof", (await as(S, "select name from storage.objects where bucket_id='payment-proofs'")).rows.length === 1);
+check("other student cannot read the proof", (await as(A, "select name from storage.objects where bucket_id='payment-proofs'")).rows.length === 0);
+check("admin can read all proofs", (await as(ADMIN, "select name from storage.objects where bucket_id='payment-proofs'")).rows.length === 1);
+
 console.log("\nmisc");
 const before = (await db.query("select updated_at from public.courses where id=$1", [course])).rows[0].updated_at;
 await new Promise((r) => setTimeout(r, 20));

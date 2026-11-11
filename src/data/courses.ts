@@ -1,3 +1,4 @@
+import type { CatalogCourse } from "@/lib/catalog";
 /**
  * Dummy course data for the homepage.
  * Later this will come from Supabase instead.
@@ -18,11 +19,13 @@ export type Course = {
   id: string;
   title: string;
   category: CourseCategoryId;
-  lessons: number;
-  durationWeeks: number;
-  students: number;
-  rating: number;
+  lessons?: number;
+  durationWeeks?: number;
+  students?: number;
+  rating?: number;
   price: number;
+  /** Where "Enroll Now" goes. Database courses use /enroll/<slug>. */
+  href?: string;
   originalPrice?: number;
   /** Put a real image in /public/images and set the path, e.g. "/images/course-1.jpg" */
   image?: string;
@@ -129,6 +132,21 @@ export const courses: Course[] = [
     tag: "New",
   },
 ];
+
+/** Turns a published database course into the shape the course cards use. */
+export function catalogToCourse(c: CatalogCourse): Course {
+  return {
+    id: c.id,
+    title: c.title,
+    category: (c.category === "hsc_1st" ? "hsc-1st" : c.category === "hsc_2nd" ? "hsc-2nd" : "admission") as CourseCategoryId,
+    durationWeeks: c.duration_weeks ?? undefined,
+    price: Number(c.price),
+    originalPrice: c.original_price ? Number(c.original_price) : undefined,
+    image: c.thumbnail_url ?? undefined,
+    tag: c.is_featured ? "Bestseller" : undefined,
+    href: `/enroll/${c.slug}`,
+  };
+}
 
 export function getCategory(id: CourseCategoryId) {
   return courseCategories.find((c) => c.id === id)!;

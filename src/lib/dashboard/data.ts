@@ -43,6 +43,7 @@ export type Payment = {
   method: string;
   status: "pending" | "completed" | "failed" | "refunded";
   transaction_id: string | null;
+  gateway_status: string | null;
   created_at: string;
   paid_at: string | null;
   course: { id: string; title: string } | null;
@@ -157,7 +158,7 @@ export const getPayments = cache(async (): Promise<Payment[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("payments")
-    .select("id, amount, currency, method, status, transaction_id, created_at, paid_at, course:courses(id, title), book:books(title)")
+    .select("id, amount, currency, method, status, transaction_id, gateway_status, created_at, paid_at, course:courses(id, title), book:books(title)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   logError("payments", error);

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, GraduationCap, Target } from "lucide-react";
-import { countCoursesIn, courseCategories, type CourseCategoryId } from "@/data/courses";
+import { courseCategories, type Course, type CourseCategoryId } from "@/data/courses";
 import { Section } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +10,7 @@ const categoryIcons: Record<CourseCategoryId, typeof BookOpen> = {
   admission: Target,
 };
 
-export function CourseCategories() {
+export function CourseCategories({ courses }: { courses: Course[] }) {
   return (
     <Section
       id="categories"
@@ -43,7 +43,7 @@ export function CourseCategories() {
                 {category.description}
               </p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                {countCoursesIn(category.id)} courses
+                {courses.filter((c) => c.category === category.id).length} courses
                 <ArrowRight
                   className="size-4 transition-transform group-hover:translate-x-1"
                   aria-hidden

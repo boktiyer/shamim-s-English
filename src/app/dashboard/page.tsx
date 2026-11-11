@@ -37,7 +37,10 @@ async function Overview({ searchParams }: Pick<PageProps<"/dashboard">, "searchP
   const enrolledCourseIds = new Set(enrollments.map((e) => e.course?.id));
   // Payments submitted for a course the admin hasn't enrolled them in yet
   const pendingPayments = payments.filter(
-    (p) => p.status === "pending" && (!p.course || !enrolledCourseIds.has(p.course.id))
+    (p) =>
+      p.status === "pending" &&
+      (p.method !== "sslcommerz" || p.gateway_status === "HIGH_RISK") && // ignore unfinished online attempts
+      (!p.course || !enrolledCourseIds.has(p.course.id))
   );
 
   const stats = [

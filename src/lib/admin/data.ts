@@ -7,6 +7,9 @@ import { createClient } from "@/lib/supabase/server";
  * requireAdmin() before using them.
  */
 
+/** Pending payments an admin should look at: all manual ones + high-risk online ones. */
+const ONLINE_NEEDS_REVIEW = "method.neq.sslcommerz,gateway_status.eq.HIGH_RISK";
+
 const STUDENT = "student:profiles!%s_user_id_fkey(id, full_name, student_id, phone, email)";
 const student = (table: string) => STUDENT.replace("%s", table);
 
@@ -27,7 +30,7 @@ export async function getStats() {
     await Promise.all([
       count("profiles", (q) => q.eq("role", "student")),
       count("enrollments", (q) => q.eq("status", "active")),
-      count("payments", (q) => q.eq("status", "pending")),
+      count("payments", (q) => q.eq("status", "pending").or(ONLINE_NEEDS_REVIEW)),
       count("enrollments", (q) => q.eq("status", "pending")),
       count("courses"),
       count("courses", (q) => q.eq("status", "published")),
@@ -45,6 +48,8 @@ export type AdminPayment = {
   status: string;
   transaction_id: string | null;
   sender_number: string | null;
+  screenshot_path: string | null;
+  gateway_status: string | null;
   created_at: string;
   course: { title: string } | null;
   book: { title: string } | null;
@@ -55,10 +60,12 @@ export async function getPayments(status?: string, limit = 100) {
   const supabase = await createClient();
   let q = supabase
     .from("payments")
-    .select(`id, amount, method, status, transaction_id, sender_number, created_at, course:courses(title), book:books(title), ${student("payments")}`)
+    .select(`id, amount, method, status, transaction_id, sender_number, screenshot_path, gateway_status, created_at, course:courses(title), book:books(title), ${student("payments")}`)
     .order("created_at", { ascending: false })
     .limit(limit);
   if (status) q = q.eq("status", status);
+  // Unfinished online attempts are not "waiting for approval" (only high-risk ones are).
+  if (status === "pending") q = q.or(ONLINE_NEEDS_REVIEW);
   return check("payments", await q) as unknown as AdminPayment[];
 }
 

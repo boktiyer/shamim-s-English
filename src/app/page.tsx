@@ -1,6 +1,5 @@
 import { Hero } from "@/components/home/hero";
-import { CourseCategories } from "@/components/home/course-categories";
-import { PopularCourses } from "@/components/home/popular-courses";
+import { CourseCatalog } from "@/components/home/course-catalog";
 import { BooksSection } from "@/components/home/books-section";
 import { AboutTeacher } from "@/components/home/about-teacher";
 import { WhyChoose } from "@/components/home/why-choose";
@@ -13,8 +12,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <CourseCategories />
-      <PopularCourses />
+      <CourseCatalog />
       <BooksSection />
       <AboutTeacher />
       <WhyChoose />

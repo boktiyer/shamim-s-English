@@ -32,6 +32,7 @@ export function CourseCard({ course }: { course: Course }) {
         {course.image ? (
           <Image
             src={course.image}
+            unoptimized={course.image.startsWith("http")}
             alt={course.title}
             fill
             sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
@@ -70,10 +71,12 @@ export function CourseCard({ course }: { course: Course }) {
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center justify-between gap-2">
           <Badge variant="secondary">{category.title}</Badge>
-          <span className="flex items-center gap-1 text-sm font-medium">
-            <Star className="size-4 fill-highlight text-highlight" aria-hidden />
-            {course.rating.toFixed(1)}
-          </span>
+          {course.rating && (
+            <span className="flex items-center gap-1 text-sm font-medium">
+              <Star className="size-4 fill-highlight text-highlight" aria-hidden />
+              {course.rating.toFixed(1)}
+            </span>
+          )}
         </div>
 
         <h3 className="mt-3 line-clamp-2 text-lg leading-snug font-semibold">
@@ -81,18 +84,24 @@ export function CourseCard({ course }: { course: Course }) {
         </h3>
 
         <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-          <li className="flex items-center gap-1.5">
-            <BookOpen className="size-4" aria-hidden />
-            {course.lessons} lessons
-          </li>
-          <li className="flex items-center gap-1.5">
-            <Clock className="size-4" aria-hidden />
-            {course.durationWeeks} weeks
-          </li>
-          <li className="flex items-center gap-1.5">
-            <Users className="size-4" aria-hidden />
-            {formatCompact(course.students)}+ students
-          </li>
+          {course.lessons && (
+            <li className="flex items-center gap-1.5">
+              <BookOpen className="size-4" aria-hidden />
+              {course.lessons} lessons
+            </li>
+          )}
+          {course.durationWeeks && (
+            <li className="flex items-center gap-1.5">
+              <Clock className="size-4" aria-hidden />
+              {course.durationWeeks} weeks
+            </li>
+          )}
+          {course.students && (
+            <li className="flex items-center gap-1.5">
+              <Users className="size-4" aria-hidden />
+              {formatCompact(course.students)}+ students
+            </li>
+          )}
         </ul>
 
         <div className="mt-auto pt-5">
@@ -109,7 +118,7 @@ export function CourseCard({ course }: { course: Course }) {
             )}
           </div>
           <Link
-            href={`/register?course=${course.id}`}
+            href={course.href ?? `/register?course=${course.id}`}
             className={buttonClass({ size: "lg", className: "px-4" })}
           >
             Enroll Now

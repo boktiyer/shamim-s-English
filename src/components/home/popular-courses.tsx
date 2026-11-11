@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { courseCategories, courses, type CourseCategoryId } from "@/data/courses";
+import { courseCategories, type Course, type CourseCategoryId } from "@/data/courses";
 import { Section } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 import { CourseCard } from "./course-card";
@@ -19,7 +19,7 @@ function filterFromHash(hash: string): Filter | null {
   return courseCategories.some((c) => c.id === id) ? (id as CourseCategoryId) : null;
 }
 
-export function PopularCourses() {
+export function PopularCourses({ courses }: { courses: Course[] }) {
   const [active, setActive] = useState<Filter>("all");
 
   // Category cards link to "#courses-<id>": switch the filter when that happens.

@@ -9,7 +9,7 @@ import { DashboardSkeleton, EmptyState, PageHeader, Panel, StatusBadge, formatDa
 export const metadata: Metadata = { title: "Payment History" };
 
 const methodLabels: Record<string, string> = {
-  bkash: "bKash", nagad: "Nagad", rocket: "Rocket", card: "Card", bank: "Bank", cash: "Cash",
+  bkash: "bKash", nagad: "Nagad", rocket: "Rocket", card: "Card", bank: "Bank", cash: "Cash", sslcommerz: "Online (SSLCommerz)",
 };
 
 export default function PaymentsPage() {
@@ -43,7 +43,10 @@ async function Payments() {
                 </div>
                 <div className="flex items-center gap-3 sm:justify-end">
                   <span className="font-heading text-lg font-bold">{formatTaka(Number(p.amount))}</span>
-                  <StatusBadge status={p.status} />
+                  <StatusBadge
+                    status={p.status === "pending" && p.method === "sslcommerz" && p.gateway_status !== "HIGH_RISK" ? "expired" : p.status}
+                    label={p.status === "pending" && p.method === "sslcommerz" && p.gateway_status !== "HIGH_RISK" ? "Not completed" : undefined}
+                  />
                 </div>
               </li>
             ))}
