@@ -26,7 +26,7 @@ export function SiteFooter() {
       <Container className="grid grid-cols-2 gap-x-6 gap-y-10 py-14 lg:grid-cols-12">
         {/* Brand */}
         <div className="col-span-2 lg:col-span-4">
-          <Logo />
+          <Logo className="h-14" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {siteConfig.description}
           </p>

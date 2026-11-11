@@ -39,7 +39,7 @@ export function MobileNav({ isLoggedIn }: { isLoggedIn: boolean }) {
       <SheetContent side="right" className="w-[85vw] max-w-sm">
         <SheetHeader className="border-b">
           <SheetTitle render={<div />}>
-            <Logo />
+            <Logo className="h-10" />
           </SheetTitle>
         </SheetHeader>
 

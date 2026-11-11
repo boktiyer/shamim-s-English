@@ -1,21 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
-import { GraduationCap } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
+/** Brand logo (public/images/logo.png, 323x137). Height is set with className, e.g. "h-11". */
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link
-      href="/"
-      className={cn(
-        "flex items-center gap-2 font-heading text-lg font-bold tracking-tight",
-        className
-      )}
-    >
-      <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <GraduationCap className="size-5" aria-hidden />
-      </span>
-      <span>{siteConfig.name}</span>
+    <Link href="/" className={cn("flex shrink-0 items-center", className)}>
+      <Image
+        src="/images/logo.png"
+        alt={siteConfig.name}
+        width={323}
+        height={137}
+        priority
+        className="h-full w-auto"
+      />
     </Link>
   );
 }
