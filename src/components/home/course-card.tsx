@@ -24,7 +24,8 @@ export function CourseCard({ course }: { course: Course }) {
       {/* Thumbnail */}
       <div
         className={cn(
-          "relative aspect-video overflow-hidden bg-linear-to-br",
+          "relative overflow-hidden bg-linear-to-br",
+          course.image ? "aspect-square" : "aspect-video",
           thumbnailTones[course.category]
         )}
       >

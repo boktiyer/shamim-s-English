@@ -58,15 +58,17 @@ export const courseCategories: CourseCategory[] = [
 
 export const courses: Course[] = [
   {
-    id: "hsc1-grammar-foundation",
-    title: "English Grammar Foundation",
+    id: "hsc-2028-regular-batch",
+    title: "HSC 2028 Regular Batch: English Preparation",
     category: "hsc-1st",
     lessons: 48,
     durationWeeks: 16,
     students: 3200,
     rating: 4.9,
-    price: 1500,
-    originalPrice: 2500,
+    price: 8000,
+    originalPrice: 10000,
+    // Add the poster as public/images/courses/hsc-2028-regular-batch.jpg, then uncomment:
+    // image: "/images/courses/hsc-2028-regular-batch.jpg",
     tag: "Bestseller",
   },
   {
