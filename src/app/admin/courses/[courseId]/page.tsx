@@ -106,8 +106,10 @@ async function EditCourse({ params }: Pick<PageProps<"/admin/courses/[courseId]"
                             )}
                             <span className="w-6 text-xs text-muted-foreground">{lesson.position}</span>
                             <span className="flex-1 font-medium">{lesson.title}</span>
+                            {!lesson.is_published && <span className="rounded bg-highlight/25 px-1.5 text-xs font-medium text-highlight-foreground">Draft</span>}
                             {lesson.is_free_preview && <span className="text-xs font-medium text-success">Free preview</span>}
-                            {!lesson.video_url && !lesson.attachment_url && <span className="text-xs text-destructive">No content</span>}
+                            {lesson.attachment_path && <span className="text-xs font-medium text-primary">PDF</span>}
+                            {!lesson.video_url && !lesson.attachment_url && !lesson.attachment_path && <span className="text-xs text-destructive">No content</span>}
                             <Pencil className="size-3.5 text-muted-foreground" aria-hidden />
                           </Link>
                         </li>

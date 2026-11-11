@@ -11,10 +11,11 @@ export const siteConfig = {
     "HSC and university admission English, made simple. Learn from Shamim Sir with structured courses, books and exam-focused practice.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   contact: {
-    phone: "+880 1700-000000",
-    email: "hello@shamimsenglish.com",
-    address: "Chattogram, Bangladesh",
-    hours: "Sat–Thu, 10:00 AM – 8:00 PM",
+    phone: "01713-620014",
+    /** Leave empty to hide the line in the footer */
+    email: "",
+    address: "Lokman Tower (3rd Floor), Lal Chand Road, Gulzar Circle, Chawkbazar, Chittagong",
+    hours: "",
   },
   social: {
     facebook: "https://facebook.com/",

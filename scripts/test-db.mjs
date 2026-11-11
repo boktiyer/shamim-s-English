@@ -27,6 +27,16 @@ await db.exec(`
   grant usage on schema auth to anon, authenticated, service_role;
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
+  -- Minimal stand-in for Supabase Storage
+  create schema storage;
+  create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
+  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text references storage.buckets(id), name text, owner uuid);
+  alter table storage.objects enable row level security;
+  create function storage.foldername(name text) returns text[] language sql immutable as $$
+    select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant all on storage.objects to anon, authenticated, service_role;
+  grant execute on function storage.foldername(text) to anon, authenticated;
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
   alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 `);
@@ -182,6 +192,23 @@ await as(ADMIN, "update public.enrollments set status='cancelled' where user_id=
 check("admin cancel removes B's paid access", (await as(B, "select id from public.lessons")).rows.length === 1);
 const fks = (await db.query("select conname from pg_constraint where conname in ('payments_user_id_fkey','enrollments_user_id_fkey')")).rows;
 check("FK names used by admin queries exist", fks.length === 2);
+
+console.log("\nlesson publishing & PDF storage");
+await as(ADMIN, "update public.enrollments set status='active' where user_id=$1", [aId]);
+const draftL = (await as(ADMIN, "insert into public.lessons (chapter_id,title,position,is_published) values ($1,'Draft lesson',3,false) returning id", [chap])).rows[0].id;
+check("enrolled A cannot see draft lesson", !(await as(A, "select id from public.lessons")).rows.some((r) => r.id === draftL));
+check("curriculum hides draft lesson from students", !(await as(A, "select lesson_id from public.get_course_curriculum($1)", [course])).rows.some((r) => r.lesson_id === draftL));
+check("admin curriculum includes draft lesson", (await as(ADMIN, "select lesson_id from public.get_course_curriculum($1)", [course])).rows.some((r) => r.lesson_id === draftL));
+check("lesson-files bucket is private", (await db.query("select public from storage.buckets where id='lesson-files'")).rows[0]?.public === false);
+await expectError("student cannot upload a file", () => as(A, "insert into storage.objects (bucket_id,name) values ('lesson-files', $1)", [`${paidL}/hack.pdf`]));
+await as(ADMIN, "insert into storage.objects (bucket_id,name) values ('lesson-files',$1),('lesson-files',$2)", [`${paidL}/notes.pdf`, `${draftL}/draft.pdf`]);
+check("enrolled A can read PDF of paid lesson", (await as(A, "select name from storage.objects where name like $1", [`${paidL}/%`])).rows.length === 1);
+check("enrolled A cannot read PDF of draft lesson", (await as(A, "select name from storage.objects where name like $1", [`${draftL}/%`])).rows.length === 0);
+const bUser = await mk("b2@test.com", { full_name: "Student B2" });
+check("non-enrolled student cannot read paid PDF", (await as({ role: "authenticated", id: bUser }, "select name from storage.objects")).rows.length === 0);
+check("anon cannot read any PDF", (await as(anon, "select name from storage.objects")).rows.length === 0);
+const del = await as(A, "delete from storage.objects returning id");
+check("student cannot delete files", del.rows.length === 0);
 
 console.log("\nmisc");
 const before = (await db.query("select updated_at from public.courses where id=$1", [course])).rows[0].updated_at;

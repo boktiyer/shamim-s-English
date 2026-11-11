@@ -196,7 +196,12 @@ export async function createLesson(_p: FormState, fd: FormData): Promise<FormSta
   if (!LESSON_TYPES.includes(type) || badNum(position)) return { error: "Check the lesson type and position." };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.from("lessons").insert({ chapter_id, title, type, position }).select("id").single();
+  // New lessons start as drafts so students never see an unfinished lesson.
+  const { data, error } = await supabase
+    .from("lessons")
+    .insert({ chapter_id, title, type, position, is_published: false })
+    .select("id")
+    .single();
   if (error) return dbError(error);
   redirect(`/admin/lessons/${data.id}`);
 }
@@ -226,9 +231,44 @@ export async function updateLesson(_p: FormState, fd: FormData): Promise<FormSta
       content: optStr(fd, "content"),
       attachment_url: optStr(fd, "attachment_url"),
       is_free_preview: bool(fd, "is_free_preview"),
+      is_published: bool(fd, "is_published"),
     })
     .eq("id", id);
   return error ? dbError(error) : ok("Lesson saved.");
+}
+
+// ---------- Lesson PDF (private "lesson-files" bucket) ----------
+// The admin's browser uploads the file straight to Storage (Storage RLS
+// only allows admins); these actions record or remove it on the lesson.
+const LESSON_FILES = "lesson-files";
+
+export async function saveLessonFile(lessonId: string, path: string): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  if (!UUID.test(lessonId) || !path.startsWith(`${lessonId}/`) || !path.toLowerCase().endsWith(".pdf")) {
+    return { error: "Invalid file." };
+  }
+  const supabase = await createClient();
+  const { data: lesson } = await supabase.from("lessons").select("attachment_path").eq("id", lessonId).single();
+  const { error } = await supabase.from("lessons").update({ attachment_path: path }).eq("id", lessonId);
+  if (error) return dbError(error);
+  if (lesson?.attachment_path && lesson.attachment_path !== path) {
+    await supabase.storage.from(LESSON_FILES).remove([lesson.attachment_path]);
+  }
+  return ok("PDF uploaded.");
+}
+
+export async function removeLessonFile(_p: FormState, fd: FormData): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  const id = str(fd, "id");
+  if (!UUID.test(id)) return { error: "Invalid lesson." };
+  const supabase = await createClient();
+  const { data: lesson } = await supabase.from("lessons").select("attachment_path").eq("id", id).single();
+  if (lesson?.attachment_path) {
+    const { error: storageError } = await supabase.storage.from(LESSON_FILES).remove([lesson.attachment_path]);
+    if (storageError) console.error("[admin] remove file:", storageError.message);
+  }
+  const { error } = await supabase.from("lessons").update({ attachment_path: null }).eq("id", id);
+  return error ? dbError(error) : ok("PDF removed.");
 }
 
 export async function deleteLesson(_p: FormState, fd: FormData): Promise<FormState> {

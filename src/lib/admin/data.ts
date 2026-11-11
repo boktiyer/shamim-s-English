@@ -146,7 +146,7 @@ export type CourseTree = AdminCourse & {
       id: string;
       title: string;
       position: number;
-      lessons: { id: string; title: string; type: string; position: number; is_free_preview: boolean; video_url: string | null; attachment_url: string | null }[];
+      lessons: { id: string; title: string; type: string; position: number; is_free_preview: boolean; is_published: boolean; video_url: string | null; attachment_url: string | null; attachment_path: string | null }[];
     }[];
   }[];
 };
@@ -157,7 +157,7 @@ export async function getCourseTree(id: string): Promise<CourseTree | null> {
   const { data, error } = await supabase
     .from("courses")
     .select(
-      "id, slug, title, subtitle, description, category, status, price, original_price, duration_weeks, thumbnail_url, is_featured, subjects(id, title, position, chapters(id, title, position, lessons(id, title, type, position, is_free_preview, video_url, attachment_url)))"
+      "id, slug, title, subtitle, description, category, status, price, original_price, duration_weeks, thumbnail_url, is_featured, subjects(id, title, position, chapters(id, title, position, lessons(id, title, type, position, is_free_preview, is_published, video_url, attachment_url, attachment_path)))"
     )
     .eq("id", id)
     .maybeSingle();
@@ -185,6 +185,8 @@ export type AdminLesson = {
   duration_minutes: number | null;
   position: number;
   is_free_preview: boolean;
+  is_published: boolean;
+  attachment_path: string | null;
   chapter: { title: string; subject: { title: string; course: { id: string; title: string } } };
 };
 
@@ -192,7 +194,7 @@ export async function getLesson(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("id, title, description, type, video_url, content, attachment_url, duration_minutes, position, is_free_preview, chapter:chapters(title, subject:subjects(title, course:courses(id, title)))")
+    .select("id, title, description, type, video_url, content, attachment_url, attachment_path, duration_minutes, position, is_free_preview, is_published, chapter:chapters(title, subject:subjects(title, course:courses(id, title)))")
     .eq("id", id)
     .maybeSingle();
   if (error) console.error("[admin] lesson:", error.message);

@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CircleCheck, Download, ExternalLink, Lock } from
 import { requireUser } from "@/lib/auth/dal";
 import { getActiveCourses, getCourseOutline, getLesson } from "@/lib/dashboard/data";
 import { youtubeId } from "@/lib/dashboard/progress";
+import { signLessonFiles } from "@/lib/storage";
 import { buttonClass } from "@/lib/button-class";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton, EmptyState, Panel } from "@/components/dashboard/ui";
@@ -44,6 +45,7 @@ async function LessonContent({ params }: Pick<PageProps<"/dashboard/learn/[lesso
   const next = outline[index + 1];
   const done = completedIds.has(lesson.id);
   const ytId = youtubeId(lesson.video_url);
+  const pdfUrl = lesson.attachment_path ? (await signLessonFiles([lesson.attachment_path])).get(lesson.attachment_path) : undefined;
 
   return (
     <div className="space-y-6">
@@ -83,10 +85,19 @@ async function LessonContent({ params }: Pick<PageProps<"/dashboard/learn/[lesso
         </Panel>
       )}
 
-      {lesson.attachment_url && (
-        <a href={lesson.attachment_url} target="_blank" rel="noopener noreferrer" className={buttonClass({ variant: "outline", size: "lg", className: "h-11 px-5" })}>
-          <Download data-icon="inline-start" aria-hidden /> Download notes / PDF
-        </a>
+      {(pdfUrl || lesson.attachment_url) && (
+        <div className="flex flex-wrap gap-3">
+          {pdfUrl && (
+            <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className={buttonClass({ size: "lg", className: "h-11 px-5" })}>
+              <Download data-icon="inline-start" aria-hidden /> Download PDF notes
+            </a>
+          )}
+          {lesson.attachment_url && (
+            <a href={lesson.attachment_url} target="_blank" rel="noopener noreferrer" className={buttonClass({ variant: "outline", size: "lg", className: "h-11 px-5" })}>
+              <ExternalLink data-icon="inline-start" aria-hidden /> Open notes link
+            </a>
+          )}
+        </div>
       )}
 
       <div className="flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">

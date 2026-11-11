@@ -14,11 +14,11 @@ async function CopyrightYear() {
 const { contact } = siteConfig;
 
 const contactItems = [
-  { icon: Phone, label: contact.phone, href: `tel:${contact.phone.replace(/[^+\d]/g, "")}` },
+  { icon: Phone, label: contact.phone, href: `tel:+88${contact.phone.replace(/\D/g, "")}` },
   { icon: Mail, label: contact.email, href: `mailto:${contact.email}` },
   { icon: MapPin, label: contact.address },
   { icon: Clock, label: contact.hours },
-];
+].filter((item) => item.label);
 
 export function SiteFooter() {
   return (

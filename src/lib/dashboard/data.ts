@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { signLessonFiles } from "@/lib/storage";
 import { getCurrentUser } from "@/lib/auth/dal";
 import {
   computeProgress,
@@ -59,6 +60,7 @@ export type Notice = {
 export type NoteFile = {
   id: string;
   title: string;
+  /** Download link: a short-lived signed URL for uploaded PDFs, or the external link */
   attachment_url: string;
   courseId: string;
   courseTitle: string;
@@ -183,20 +185,27 @@ export const getNotes = cache(async (): Promise<NoteFile[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("id, title, attachment_url, position, chapter:chapters!inner(title, position, subject:subjects!inner(course_id, position))")
-    .not("attachment_url", "is", null)
+    .select("id, title, attachment_url, attachment_path, position, chapter:chapters!inner(title, position, subject:subjects!inner(course_id, position))")
+    .or("attachment_url.not.is.null,attachment_path.not.is.null")
     .in("chapter.subject.course_id", [...titles.keys()]);
   logError("notes", error);
 
   type Row = {
     id: string;
     title: string;
-    attachment_url: string;
+    attachment_url: string | null;
+    attachment_path: string | null;
     position: number;
     chapter: { title: string; position: number; subject: { course_id: string; position: number } };
   };
-  return ((data ?? []) as unknown as Row[])
-    .filter((r) => titles.has(r.chapter.subject.course_id)) // only active courses, never free previews of others
+  const rows = ((data ?? []) as unknown as Row[]).filter((r) => titles.has(r.chapter.subject.course_id)); // only active courses
+  const signed = await signLessonFiles(rows.map((r) => r.attachment_path ?? ""));
+
+  return rows
+    .flatMap((r) => {
+      const links = [r.attachment_path && signed.get(r.attachment_path), r.attachment_url].filter(Boolean) as string[];
+      return links.map((link, i) => ({ ...r, id: i ? `${r.id}-link` : r.id, attachment_url: link }));
+    })
     .sort(
       (a, b) =>
         a.chapter.subject.position - b.chapter.subject.position ||
@@ -221,6 +230,7 @@ export type LessonDetail = {
   video_url: string | null;
   content: string | null;
   attachment_url: string | null;
+  attachment_path: string | null;
   duration_minutes: number | null;
   chapter: { title: string; subject: { title: string; course_id: string } };
 };
@@ -230,7 +240,7 @@ export const getLesson = cache(async (lessonId: string): Promise<LessonDetail | 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("id, title, description, type, video_url, content, attachment_url, duration_minutes, chapter:chapters(title, subject:subjects(title, course_id))")
+    .select("id, title, description, type, video_url, content, attachment_url, attachment_path, duration_minutes, chapter:chapters(title, subject:subjects(title, course_id))")
     .eq("id", lessonId)
     .maybeSingle();
   logError("lesson", error);

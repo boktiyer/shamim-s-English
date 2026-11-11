@@ -8,7 +8,10 @@ import { getLesson } from "@/lib/admin/data";
 import { ActionButton, AdminForm } from "@/components/admin/forms";
 import { Checkbox, Field, Select, TextArea, TextInput, lessonTypeOptions } from "@/components/admin/fields";
 import { DashboardSkeleton, Panel } from "@/components/dashboard/ui";
-import { deleteLesson, updateLesson } from "../../actions";
+import { signLessonFiles } from "@/lib/storage";
+import { PdfUploader } from "@/components/admin/pdf-uploader";
+import { StatusBadge } from "@/components/dashboard/ui";
+import { deleteLesson, removeLessonFile, updateLesson } from "../../actions";
 
 export const metadata: Metadata = { title: "Edit lesson" };
 
@@ -29,6 +32,7 @@ async function EditLesson({ params }: Pick<PageProps<"/admin/lessons/[lessonId]"
   const lesson = await getLesson(lessonId);
   if (!lesson) notFound();
   const course = lesson.chapter.subject.course;
+  const fileUrl = lesson.attachment_path ? (await signLessonFiles([lesson.attachment_path])).get(lesson.attachment_path) : undefined;
 
   return (
     <div className="space-y-6">
@@ -39,7 +43,10 @@ async function EditLesson({ params }: Pick<PageProps<"/admin/lessons/[lessonId]"
         <p className="text-sm text-muted-foreground">
           {lesson.chapter.subject.title} · {lesson.chapter.title}
         </p>
-        <h1 className="text-h2">{lesson.title}</h1>
+        <h1 className="flex flex-wrap items-center gap-3 text-h2">
+          {lesson.title}
+          <StatusBadge status={lesson.is_published ? "active" : "pending"} label={lesson.is_published ? "Published" : "Draft"} />
+        </h1>
       </div>
 
       <Panel title="Lesson details">
@@ -58,13 +65,14 @@ async function EditLesson({ params }: Pick<PageProps<"/admin/lessons/[lessonId]"
             <Field label="Video link (YouTube or any URL)" className="sm:col-span-2">
               <TextInput name="video_url" type="url" defaultValue={lesson.video_url ?? ""} placeholder="https://www.youtube.com/watch?v=…" />
             </Field>
-            <Field label="Notes / PDF link (shown in Notes & PDFs)" className="sm:col-span-2">
+            <Field label="External notes link (optional, e.g. Google Drive)" className="sm:col-span-2">
               <TextInput name="attachment_url" type="url" defaultValue={lesson.attachment_url ?? ""} placeholder="https://drive.google.com/…" />
             </Field>
             <Field label="Duration (minutes)">
               <TextInput name="duration_minutes" type="number" min={0} defaultValue={lesson.duration_minutes ?? ""} />
             </Field>
-            <div className="flex items-end pb-2">
+            <div className="flex flex-col justify-end gap-3 pb-2">
+              <Checkbox name="is_published" label="Published (visible to enrolled students)" defaultChecked={lesson.is_published} />
               <Checkbox name="is_free_preview" label="Free preview (visible without enrollment)" defaultChecked={lesson.is_free_preview} />
             </div>
             <Field label="Short description" className="sm:col-span-2">
@@ -75,6 +83,25 @@ async function EditLesson({ params }: Pick<PageProps<"/admin/lessons/[lessonId]"
             </Field>
           </div>
         </AdminForm>
+      </Panel>
+
+      <Panel title="Lesson PDF (private)">
+        {lesson.attachment_path ? (
+          <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
+            <span className="font-medium">Current file:</span>
+            {fileUrl ? (
+              <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                {lesson.attachment_path.split("/").pop()}
+              </a>
+            ) : (
+              <span className="text-muted-foreground">{lesson.attachment_path.split("/").pop()}</span>
+            )}
+            <ActionButton action={removeLessonFile} fields={{ id: lesson.id }} label="Remove PDF" variant="ghost" confirmText="Remove this PDF?" />
+          </div>
+        ) : (
+          <p className="mb-4 text-sm text-muted-foreground">No PDF uploaded yet.</p>
+        )}
+        <PdfUploader lessonId={lesson.id} hasFile={Boolean(lesson.attachment_path)} />
       </Panel>
 
       <Panel title="Danger zone" className="border-destructive/30">
