@@ -18,7 +18,7 @@ export const siteConfig = {
   },
   social: {
     facebook: "https://facebook.com/",
-    youtube: "https://youtube.com/",
+    youtube: "https://www.youtube.com/@mmhshamimsir",
     instagram: "https://instagram.com/",
     whatsapp: "https://wa.me/8801700000000",
     telegram: "https://t.me/",

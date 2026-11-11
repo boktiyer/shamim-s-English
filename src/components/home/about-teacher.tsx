@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Award, CircleCheck } from "lucide-react";
+import { Award, CircleCheck, CirclePlay } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { heroStats, teacher } from "@/data/home";
 import { buttonClass } from "@/lib/button-class";
@@ -57,12 +57,26 @@ export function AboutTeacher() {
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
               </div>
             ))}
-            <Link
-              href="/#courses"
-              className={buttonClass({ size: "lg", className: "h-11 px-6 sm:ml-auto" })}
-            >
-              Learn with Shamim Sir
-            </Link>
+            <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row">
+              <Link
+                href="/#courses"
+                className={buttonClass({ size: "lg", className: "h-11 px-6" })}
+              >
+                Learn with Shamim Sir
+              </Link>
+              <a
+                href={siteConfig.social.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonClass({
+                  size: "lg",
+                  className: "h-11 bg-red-600 px-6 text-white hover:bg-red-700",
+                })}
+              >
+                <CirclePlay data-icon="inline-start" aria-hidden />
+                Watch classes on YouTube
+              </a>
+            </div>
           </div>
         </div>
       </Container>
