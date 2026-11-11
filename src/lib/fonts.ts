@@ -1,14 +1,12 @@
-import { Hind_Siliguri, Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Hind_Siliguri, Playfair_Display } from "next/font/google";
 
-/** Body text — highly readable at small sizes. */
-export const fontBody = Inter({
-  subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-});
+/*
+ * Body text uses Times New Roman (a system font, so nothing to download).
+ * See --font-sans in src/app/globals.css.
+ */
 
-/** Headings — friendly, modern, slightly rounded. */
-export const fontDisplay = Plus_Jakarta_Sans({
+/** Headings and bold display text — elegant serif. */
+export const fontDisplay = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
