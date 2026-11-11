@@ -91,7 +91,7 @@ export function CourseCard({ course }: { course: Course }) {
           </li>
           <li className="flex items-center gap-1.5">
             <Users className="size-4" aria-hidden />
-            {formatCompact(course.students)} students
+            {formatCompact(course.students)}+ students
           </li>
         </ul>
 
