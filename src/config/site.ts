@@ -18,7 +18,7 @@ export const siteConfig = {
   contact: {
     phone: "01713-620014",
     /** Leave empty to hide the line in the footer */
-    email: "",
+    email: "boktiyerhossen36@gmail.com",
     address: "Lokman Tower (3rd Floor), Lal Chand Road, Gulzar Circle, Chawkbazar, Chittagong",
     hours: "",
   },
