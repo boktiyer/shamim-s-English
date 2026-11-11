@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CircleCheck, Download, ExternalLink, Lock } from "lucide-react";
 import { requireUser } from "@/lib/auth/dal";
-import { getActiveCourses, getCourseOutline, getLesson } from "@/lib/dashboard/data";
+import { getActiveCourses, getCourseOutline, getLesson, getLessonPlayerUrl } from "@/lib/dashboard/data";
+import { StreamPlayer } from "@/components/shared/stream-player";
 import { youtubeId } from "@/lib/dashboard/progress";
 import { signLessonFiles } from "@/lib/storage";
 import { buttonClass } from "@/lib/button-class";
@@ -44,7 +45,8 @@ async function LessonContent({ params }: Pick<PageProps<"/dashboard/learn/[lesso
   const prev = outline[index - 1];
   const next = outline[index + 1];
   const done = completedIds.has(lesson.id);
-  const ytId = youtubeId(lesson.video_url);
+  const streamUrl = lesson.stream_video_id ? await getLessonPlayerUrl(lesson.id) : null;
+  const ytId = streamUrl ? null : youtubeId(lesson.video_url);
   const pdfUrl = lesson.attachment_path ? (await signLessonFiles([lesson.attachment_path])).get(lesson.attachment_path) : undefined;
 
   return (
@@ -60,7 +62,13 @@ async function LessonContent({ params }: Pick<PageProps<"/dashboard/learn/[lesso
         <h1 className="mt-1 text-h2">{lesson.title}</h1>
       </div>
 
-      {ytId ? (
+      {streamUrl ? (
+        <StreamPlayer src={streamUrl} title={lesson.title} />
+      ) : lesson.stream_video_id ? (
+        <p className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+          The video for this lesson is not available right now. Please try again later.
+        </p>
+      ) : ytId ? (
         <div className="aspect-video overflow-hidden rounded-2xl bg-black">
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${ytId}?rel=0`}

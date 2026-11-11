@@ -6,6 +6,13 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getAdmin } from "@/lib/auth/dal";
 import type { FormState } from "@/lib/auth/validation";
+import {
+  VIDEO_UID,
+  createDirectUpload,
+  deleteVideo,
+  isStreamApiConfigured,
+  requireSignedUrls,
+} from "@/lib/cloudflare/stream";
 
 /**
  * Admin server actions. Every action:
@@ -255,6 +262,71 @@ export async function saveLessonFile(lessonId: string, path: string): Promise<Fo
     await supabase.storage.from(LESSON_FILES).remove([lesson.attachment_path]);
   }
   return ok("PDF uploaded.");
+}
+
+// ---------- Lesson video (Cloudflare Stream) ----------
+// The API token stays on the server. The browser only receives a one-time
+// upload URL for a single video.
+
+/** Step 1 of an upload: a one-time Cloudflare upload URL for this lesson. */
+export async function createVideoUpload(lessonId: string): Promise<{ uploadURL?: string; uid?: string; error?: string }> {
+  if (!(await getAdmin())) return DENIED;
+  if (!UUID.test(lessonId)) return { error: "Invalid lesson." };
+  if (!isStreamApiConfigured()) return { error: "Cloudflare Stream is not configured on the server." };
+  try {
+    const { uploadURL, uid } = await createDirectUpload(`lesson-${lessonId}`);
+    return { uploadURL, uid };
+  } catch (error) {
+    console.error("[admin] direct upload:", error);
+    return { error: "Could not start the upload. Check the Cloudflare settings." };
+  }
+}
+
+async function linkVideo(lessonId: string, uid: string): Promise<FormState> {
+  if (!UUID.test(lessonId)) return { error: "Invalid lesson." };
+  if (!VIDEO_UID.test(uid)) return { error: "A Cloudflare video ID has 32 letters/numbers (a–f, 0–9)." };
+  if (isStreamApiConfigured()) {
+    try {
+      await requireSignedUrls(uid); // also confirms the video exists in this account
+    } catch (error) {
+      console.error("[admin] require signed urls:", error);
+      return { error: "That video was not found in your Cloudflare Stream account." };
+    }
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.from("lessons").update({ stream_video_id: uid }).eq("id", lessonId);
+  return error ? dbError(error) : ok("Video linked to this lesson.");
+}
+
+/** Step 2 of an upload: link the uploaded video to the lesson. */
+export async function attachStreamVideo(lessonId: string, uid: string): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  return linkVideo(lessonId, uid);
+}
+
+/** Link a video already uploaded in the Cloudflare dashboard (e.g. files over 200 MB). */
+export async function attachVideoById(_p: FormState, fd: FormData): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  return linkVideo(str(fd, "id"), str(fd, "video_uid").toLowerCase());
+}
+
+export async function removeStreamVideo(_p: FormState, fd: FormData): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  const id = str(fd, "id");
+  if (!UUID.test(id)) return { error: "Invalid lesson." };
+  const supabase = await createClient();
+  const { data: lesson } = await supabase.from("lessons").select("stream_video_id").eq("id", id).single();
+  const { error } = await supabase.from("lessons").update({ stream_video_id: null }).eq("id", id);
+  if (error) return dbError(error);
+  if (fd.get("delete_from_cloudflare") === "true" && lesson?.stream_video_id && isStreamApiConfigured()) {
+    try {
+      await deleteVideo(lesson.stream_video_id);
+    } catch (e) {
+      console.error("[admin] delete video:", e);
+      return ok("Video unlinked, but it could not be deleted from Cloudflare.");
+    }
+  }
+  return ok("Video removed from this lesson.");
 }
 
 export async function removeLessonFile(_p: FormState, fd: FormData): Promise<FormState> {

@@ -210,6 +210,14 @@ check("anon cannot read any PDF", (await as(anon, "select name from storage.obje
 const del = await as(A, "delete from storage.objects returning id");
 check("student cannot delete files", del.rows.length === 0);
 
+console.log("\ncloudflare stream video id");
+await as(ADMIN, "update public.lessons set stream_video_id='f65014bc6ff5419ea86e7972a047ba22' where id=$1", [paidL]);
+check("admin can link a stream video id", (await as(ADMIN, "select stream_video_id from public.lessons where id=$1", [paidL])).rows[0].stream_video_id?.length === 32);
+await expectError("invalid stream video id rejected", () => as(ADMIN, "update public.lessons set stream_video_id='not-a-video' where id=$1", [paidL]));
+const sv = await as(A, "update public.lessons set stream_video_id=null where id=$1 returning id", [paidL]);
+check("student cannot change lesson video", sv.rows.length === 0);
+check("non-enrolled student cannot read video id", (await as({ role: "authenticated", id: bUser }, "select stream_video_id from public.lessons where id=$1", [paidL])).rows.length === 0);
+
 console.log("\nmisc");
 const before = (await db.query("select updated_at from public.courses where id=$1", [course])).rows[0].updated_at;
 await new Promise((r) => setTimeout(r, 20));

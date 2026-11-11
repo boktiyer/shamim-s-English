@@ -12,6 +12,7 @@ import { signLessonFiles } from "@/lib/storage";
 import { PdfUploader } from "@/components/admin/pdf-uploader";
 import { StatusBadge } from "@/components/dashboard/ui";
 import { deleteLesson, removeLessonFile, updateLesson } from "../../actions";
+import { VideoPanel } from "./video-panel";
 
 export const metadata: Metadata = { title: "Edit lesson" };
 
@@ -62,7 +63,7 @@ async function EditLesson({ params }: Pick<PageProps<"/admin/lessons/[lessonId]"
             <Field label="Position (order in chapter)">
               <TextInput name="position" type="number" min={0} defaultValue={lesson.position} />
             </Field>
-            <Field label="Video link (YouTube or any URL)" className="sm:col-span-2">
+            <Field label="YouTube / other video link (used if no Cloudflare video)" className="sm:col-span-2">
               <TextInput name="video_url" type="url" defaultValue={lesson.video_url ?? ""} placeholder="https://www.youtube.com/watch?v=…" />
             </Field>
             <Field label="External notes link (optional, e.g. Google Drive)" className="sm:col-span-2">
@@ -84,6 +85,8 @@ async function EditLesson({ params }: Pick<PageProps<"/admin/lessons/[lessonId]"
           </div>
         </AdminForm>
       </Panel>
+
+      <VideoPanel lessonId={lesson.id} title={lesson.title} videoUid={lesson.stream_video_id} />
 
       <Panel title="Lesson PDF (private)">
         {lesson.attachment_path ? (

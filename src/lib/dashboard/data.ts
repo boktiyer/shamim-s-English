@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { signLessonFiles } from "@/lib/storage";
+import { signedPlayerUrl } from "@/lib/cloudflare/stream";
 import { getCurrentUser } from "@/lib/auth/dal";
 import {
   computeProgress,
@@ -231,6 +232,7 @@ export type LessonDetail = {
   content: string | null;
   attachment_url: string | null;
   attachment_path: string | null;
+  stream_video_id: string | null;
   duration_minutes: number | null;
   chapter: { title: string; subject: { title: string; course_id: string } };
 };
@@ -240,9 +242,24 @@ export const getLesson = cache(async (lessonId: string): Promise<LessonDetail | 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("id, title, description, type, video_url, content, attachment_url, attachment_path, duration_minutes, chapter:chapters(title, subject:subjects(title, course_id))")
+    .select("id, title, description, type, video_url, content, attachment_url, attachment_path, stream_video_id, duration_minutes, chapter:chapters(title, subject:subjects(title, course_id))")
     .eq("id", lessonId)
     .maybeSingle();
   logError("lesson", error);
   return data as unknown as LessonDetail | null;
 });
+
+/**
+ * Secure Cloudflare Stream playback for a lesson. Signs a short-lived token
+ * ONLY after verifying, on the server, that the student can read the lesson
+ * (RLS) and has an approved, active, unexpired enrollment in its course.
+ */
+export async function getLessonPlayerUrl(lessonId: string): Promise<string | null> {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  const [lesson, { courses }] = await Promise.all([getLesson(lessonId), getActiveCourses()]);
+  if (!lesson?.stream_video_id) return null;
+  const enrolled = courses.some((c) => c.courseId === lesson.chapter.subject.course_id);
+  if (!enrolled) return null;
+  return signedPlayerUrl(lesson.stream_video_id);
+}

@@ -122,3 +122,23 @@ Which client to use:
 - **In Server Components / Server Actions**: `import { createClient } from "@/lib/supabase/server"`
 
 Never commit `.env.local`. It is already ignored by git.
+
+---
+
+## Cloudflare Stream (lesson videos)
+
+Videos are private: they play only through short-lived tokens that the server signs **after** checking the student has an approved, active enrollment. All Cloudflare settings are server-only (no `NEXT_PUBLIC_`).
+
+1. In Cloudflare, open **Stream** and copy your **Account ID**.
+2. Create an API token (**My Profile → API Tokens → Create Token**) with the permission **Stream: Edit**.
+3. Find your customer code: open any video in Stream, then **Embed**. It's the `<CODE>` in `customer-<CODE>.cloudflarestream.com`.
+4. Add to `.env.local`:
+   ```
+   CLOUDFLARE_ACCOUNT_ID=...
+   CLOUDFLARE_STREAM_API_TOKEN=...
+   CLOUDFLARE_STREAM_CUSTOMER_CODE=...
+   ```
+5. Run `npm run stream:setup` once. It creates a signing key and saves it to `.env.local` without showing it.
+6. Restart `npm run dev`. In **Admin → Courses → a lesson** you can now upload videos (up to 200 MB) or paste the ID of a video uploaded in the Cloudflare dashboard.
+
+When you deploy, add the same five `CLOUDFLARE_*` values to your host's environment variables.
