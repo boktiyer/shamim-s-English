@@ -2,14 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { FileText, Gift, ShoppingCart } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { books, type Book } from "@/data/books";
+import { books as sampleBooks, catalogToBook, type Book } from "@/data/books";
+import { getPublishedBooks } from "@/lib/books";
 import { formatTaka } from "@/lib/format";
 import { buttonClass } from "@/lib/button-class";
 import { Section } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 
-/** Generated book cover, used until real cover images are added. */
-function BookCover({ book }: { book: Book }) {
+/** Book cover image, or a generated cover until a real one is added. */
+export function BookCover({ book }: { book: Pick<Book, "title" | "subtitle" | "cover" | "coverTone"> }) {
   return (
     <div
       className={cn(
@@ -21,7 +22,14 @@ function BookCover({ book }: { book: Book }) {
       )}
     >
       {book.cover ? (
-        <Image src={book.cover} alt={book.title} fill sizes="(min-width: 640px) 360px, 50vw" className="object-cover" />
+        <Image
+          src={book.cover}
+          alt={book.title}
+          fill
+          sizes="(min-width: 640px) 360px, 50vw"
+          className="object-cover"
+          unoptimized={book.cover.startsWith("http")}
+        />
       ) : (
         <div className="flex h-full flex-col p-4 text-white sm:p-5">
           {/* Spine shading */}
@@ -42,22 +50,29 @@ function BookCover({ book }: { book: Book }) {
   );
 }
 
-export function BooksSection() {
+/** Shows the books published in the Admin Panel; the sample books until one is published. */
+export async function BooksSection() {
+  const published = (await getPublishedBooks()).map(catalogToBook);
+  const books = published.length ? published : sampleBooks;
   return (
     <Section
       id="books"
       eyebrow="Books by Shamim Sir"
       title="Study smarter with our books"
-      description="Written by MMH Shamim Sir, free for all Shamim's English students."
+      description={
+        books.every((b) => b.free)
+          ? "Written by MMH Shamim Sir, free for all Shamim's English students."
+          : "Written by MMH Shamim Sir. Read a free sample, then order a printed copy to your home."
+      }
     >
       <div className="mx-auto grid max-w-3xl grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-10">
         {books.map((book) => (
           <article key={book.id} className="group flex flex-col">
-            <div className="px-2 sm:px-4">
+            <Link href={book.href ?? `/register?book=${book.id}`} className="px-2 sm:px-4" tabIndex={-1} aria-hidden>
               <BookCover book={book} />
-            </div>
+            </Link>
             <h3 className="mt-5 text-base leading-snug font-semibold sm:text-lg">
-              {book.title}
+              {book.href ? <Link href={book.href} className="hover:text-primary">{book.title}</Link> : book.title}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">{book.subtitle}</p>
             {book.pages && (
@@ -86,7 +101,7 @@ export function BooksSection() {
               )}
             </div>
             <Link
-              href={`/register?book=${book.id}`}
+              href={book.href ?? `/register?book=${book.id}`}
               className={buttonClass({
                 variant: "outline",
                 size: "lg",
@@ -101,7 +116,7 @@ export function BooksSection() {
               ) : (
                 <>
                   <ShoppingCart data-icon="inline-start" aria-hidden />
-                  Order Now
+                  Buy Now
                 </>
               )}
             </Link>

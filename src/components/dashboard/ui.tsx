@@ -54,6 +54,9 @@ const statusStyles: Record<string, string> = {
   cancelled: "bg-destructive/10 text-destructive",
   failed: "bg-destructive/10 text-destructive",
   refunded: "bg-muted text-muted-foreground",
+  confirmed: "bg-secondary text-secondary-foreground",
+  shipped: "bg-secondary text-primary",
+  delivered: "bg-success/15 text-success",
 };
 
 const statusLabels: Record<string, string> = {
@@ -64,6 +67,9 @@ const statusLabels: Record<string, string> = {
   completed: "Paid",
   failed: "Failed",
   refunded: "Refunded",
+  confirmed: "Confirmed",
+  shipped: "Shipped",
+  delivered: "Delivered",
 };
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {

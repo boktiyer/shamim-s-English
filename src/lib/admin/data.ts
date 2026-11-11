@@ -222,15 +222,48 @@ export type AdminBook = {
   original_price: number | null;
   stock: number;
   is_published: boolean;
+  cover_path: string | null;
+  sample_path: string | null;
 };
 
 export async function getBooks() {
   const supabase = await createClient();
   const res = await supabase
     .from("books")
-    .select("id, slug, title, subtitle, description, author, cover_url, pages, price, original_price, stock, is_published")
+    .select("id, slug, title, subtitle, description, author, cover_url, cover_path, sample_path, pages, price, original_price, stock, is_published")
     .order("created_at", { ascending: false });
   return check("books", res) as unknown as AdminBook[];
+}
+
+export type AdminBookOrder = {
+  id: string;
+  order_no: string;
+  book_title: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+  recipient_name: string;
+  phone: string;
+  address: string;
+  note: string | null;
+  status: string;
+  admin_note: string | null;
+  created_at: string;
+  payment: { id: string; status: string; method: string; transaction_id: string | null; sender_number: string | null; screenshot_path: string | null } | null;
+  student: { id: string; full_name: string; student_id: string; phone: string | null } | null;
+};
+
+export async function getBookOrders(status?: string) {
+  const supabase = await createClient();
+  let q = supabase
+    .from("book_orders")
+    .select(
+      `id, order_no, book_title, quantity, unit_price, total, recipient_name, phone, address, note, status, admin_note, created_at, payment:payments(id, status, method, transaction_id, sender_number, screenshot_path), ${student("book_orders")}`
+    )
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (status) q = q.eq("status", status);
+  return check("book_orders", await q) as unknown as AdminBookOrder[];
 }
 
 export type AdminNotice = {

@@ -165,6 +165,32 @@ export const getPayments = cache(async (): Promise<Payment[]> => {
   return (data ?? []) as unknown as Payment[];
 });
 
+export type BookOrder = {
+  id: string;
+  order_no: string;
+  book_id: string | null;
+  book_title: string;
+  quantity: number;
+  total: number;
+  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+  admin_note: string | null;
+  created_at: string;
+  payment: { status: string; transaction_id: string | null } | null;
+};
+
+export const getBookOrders = cache(async (): Promise<BookOrder[]> => {
+  const user = await getCurrentUser();
+  if (!user) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("book_orders")
+    .select("id, order_no, book_id, book_title, quantity, total, status, admin_note, created_at, payment:payments(status, transaction_id)")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  logError("book_orders", error);
+  return (data ?? []) as unknown as BookOrder[];
+});
+
 export const getNotices = cache(async (limit = 50): Promise<Notice[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase

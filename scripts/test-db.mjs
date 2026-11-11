@@ -238,6 +238,43 @@ check("student can read own proof", (await as(S, "select name from storage.objec
 check("other student cannot read the proof", (await as(A, "select name from storage.objects where bucket_id='payment-proofs'")).rows.length === 0);
 check("admin can read all proofs", (await as(ADMIN, "select name from storage.objects where bucket_id='payment-proofs'")).rows.length === 1);
 
+console.log("\nbook store");
+const paidBook = (await as(ADMIN, "insert into public.books (slug,title,price,stock,is_published) values ('secret-weapon','Secret Weapon',500,2,true) returning id")).rows[0].id;
+const freeBook = (await as(ADMIN, "insert into public.books (slug,title,price,stock,is_published) values ('smart-qb','Smart QB',0,5,true) returning id")).rows[0].id;
+const hiddenBook = (await db.query("select id from public.books where slug='hidden'")).rows[0].id;
+const place = (who, book, qty, method = null, sender = null, trx = null, shot = null) =>
+  as(who, "select public.place_book_order($1,$2,'Student Name','01712345678','Lokman Tower, Chawkbazar, Chittagong',null,$3,$4,$5,$6) as no", [book, qty, method, sender, trx, shot]).then((r) => r.rows[0].no);
+const stockOf = async (id) => (await db.query("select stock from public.books where id=$1", [id])).rows[0].stock;
+
+await expectError("visitor cannot place an order", () => place(anon, paidBook, 1));
+await expectError("student cannot insert an order directly", () => as(S, "insert into public.book_orders (user_id,book_id,book_title,unit_price,total,recipient_name,phone,address) values ($1,$2,'x',0,0,'Name','01712345678','Some long address')", [bUser, paidBook]));
+await expectError("student cannot insert a book payment directly", () => as(S, "insert into public.payments (user_id,book_id,amount,method,transaction_id) values ($1,$2,1,'bkash','BOOKTRX09')", [bUser, paidBook]));
+await expectError("paid book needs payment details", () => place(S, paidBook, 1), /payment method/);
+await expectError("book screenshot must be in own folder", () => place(S, paidBook, 1, "bkash", "01712345678", "BOOKTRX01", `${aId}/x.jpg`), /screenshot/);
+const orderNo = await place(S, paidBook, 1, "bkash", "01712345678", "BOOKTRX01", `${bUser}/book.jpg`);
+check("order gets an order number", /^BK-[0-9A-F]{8}$/.test(orderNo));
+const ord = (await db.query("select o.total, o.unit_price, o.status, p.amount, p.book_id, p.status as pay_status from public.book_orders o join public.payments p on p.id=o.payment_id where o.order_no=$1", [orderNo])).rows[0];
+check("price and payment come from the database", Number(ord?.total) === 500 && Number(ord?.amount) === 500 && ord?.book_id === paidBook && ord?.pay_status === "pending");
+check("ordering reserves stock", (await stockOf(paidBook)) === 1);
+await expectError("one open order per book", () => place(S, paidBook, 1, "bkash", "01712345678", "BOOKTRX02", `${bUser}/b2.jpg`));
+await expectError("TrxID can't be reused for a book", () => place(A, paidBook, 1, "nagad", "01812345678", "BOOKTRX01", `${aId}/a.jpg`));
+check("failed order does not take stock", (await stockOf(paidBook)) === 1);
+await expectError("cannot order more than in stock", () => place(A, paidBook, 2, "bkash", "01812345678", "BOOKTRX03", `${aId}/a.jpg`), /stock/);
+await expectError("hidden book cannot be ordered", () => place(A, hiddenBook, 1), /not available/);
+await expectError("free book needs an active enrollment", () => place(S, freeBook, 1), /enrolled/);
+const freeNo = await place(A, freeBook, 1);
+check("enrolled student gets free book without payment", (await db.query("select payment_id, total from public.book_orders where order_no=$1", [freeNo])).rows[0]?.payment_id === null);
+check("student sees only own orders", (await as(S, "select order_no from public.book_orders")).rows.length === 1);
+check("student cannot change order status", (await as(S, "update public.book_orders set status='delivered' returning id")).rows.length === 0);
+check("admin sees all orders", (await as(ADMIN, "select id from public.book_orders")).rows.length === 2);
+await as(ADMIN, "update public.book_orders set status='cancelled' where order_no=$1", [orderNo]);
+check("cancelling returns stock", (await stockOf(paidBook)) === 2);
+await expectError("cancelled order cannot be reopened", () => as(ADMIN, "update public.book_orders set status='confirmed' where order_no=$1", [orderNo]), /reopened/);
+check("book-assets bucket is public", (await db.query("select public from storage.buckets where id='book-assets'")).rows[0]?.public === true);
+await expectError("student cannot upload book covers", () => as(S, "insert into storage.objects (bucket_id,name) values ('book-assets',$1)", [`covers/${paidBook}/x.jpg`]));
+await as(ADMIN, "insert into storage.objects (bucket_id,name) values ('book-assets',$1)", [`covers/${paidBook}/cover.jpg`]);
+check("admin can upload book covers", (await as(ADMIN, "select name from storage.objects where bucket_id='book-assets'")).rows.length === 1);
+
 console.log("\nmisc");
 const before = (await db.query("select updated_at from public.courses where id=$1", [course])).rows[0].updated_at;
 await new Promise((r) => setTimeout(r, 20));

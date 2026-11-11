@@ -6,6 +6,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getAdmin } from "@/lib/auth/dal";
 import type { FormState } from "@/lib/auth/validation";
+import { BOOK_BUCKET } from "@/lib/books";
 import {
   VIDEO_UID,
   createDirectUpload,
@@ -369,7 +370,7 @@ export async function approvePayment(_p: FormState, fd: FormData): Promise<FormS
   const supabase = await createClient();
   const { data: payment, error: readError } = await supabase
     .from("payments")
-    .select("id, user_id, course_id, status, method, gateway_status")
+    .select("id, user_id, course_id, book_id, status, method, gateway_status")
     .eq("id", id)
     .single();
   if (readError) return dbError(readError);
@@ -396,6 +397,12 @@ export async function approvePayment(_p: FormState, fd: FormData): Promise<FormS
       );
     if (enrollError) return dbError(enrollError);
   }
+  // Book payment -> confirm the linked order.
+  if (payment.book_id) {
+    const { error: orderError } = await supabase.from("book_orders").update({ status: "confirmed" }).eq("payment_id", id).eq("status", "pending");
+    if (orderError) return dbError(orderError);
+    return ok("Payment approved. The book order is confirmed.");
+  }
   return ok("Payment approved. The student now has access.");
 }
 
@@ -413,6 +420,13 @@ export async function rejectPayment(_p: FormState, fd: FormData): Promise<FormSt
     .eq("status", "pending");
   if (error) return dbError(error);
   await supabase.from("enrollments").update({ status: "cancelled" }).eq("payment_id", id).eq("status", "pending");
+  // A rejected book payment cancels its order (the copies go back to stock).
+  const { count } = await supabase
+    .from("book_orders")
+    .update({ status: "cancelled" }, { count: "exact" })
+    .eq("payment_id", id)
+    .eq("status", "pending");
+  if (count) updateTag("books");
   return ok("Payment rejected.");
 }
 
@@ -492,7 +506,9 @@ export async function createBook(_p: FormState, fd: FormData): Promise<FormState
   if ("error" in parsed) return { error: parsed.error };
   const supabase = await createClient();
   const { error } = await supabase.from("books").insert(parsed.data);
-  return error ? dbError(error) : ok("Book added.");
+  if (error) return dbError(error);
+  updateTag("books");
+  return ok("Book added.");
 }
 
 export async function updateBook(_p: FormState, fd: FormData): Promise<FormState> {
@@ -503,7 +519,9 @@ export async function updateBook(_p: FormState, fd: FormData): Promise<FormState
   if ("error" in parsed) return { error: parsed.error };
   const supabase = await createClient();
   const { error } = await supabase.from("books").update(parsed.data).eq("id", id);
-  return error ? dbError(error) : ok("Book saved.");
+  if (error) return dbError(error);
+  updateTag("books");
+  return ok("Book saved.");
 }
 
 export async function deleteBook(_p: FormState, fd: FormData): Promise<FormState> {
@@ -511,8 +529,109 @@ export async function deleteBook(_p: FormState, fd: FormData): Promise<FormState
   const id = str(fd, "id");
   if (!UUID.test(id)) return { error: "Invalid book." };
   const supabase = await createClient();
+  const { data: book } = await supabase.from("books").select("cover_path, sample_path").eq("id", id).single();
   const { error } = await supabase.from("books").delete().eq("id", id);
-  return error ? dbError(error) : ok("Book deleted.");
+  if (error) return dbError(error);
+  const files = [book?.cover_path, book?.sample_path].filter(Boolean) as string[];
+  if (files.length) await supabase.storage.from(BOOK_BUCKET).remove(files);
+  updateTag("books");
+  return ok("Book deleted.");
+}
+
+// ---------- Book cover & sample PDF (public "book-assets" bucket) ----------
+const BOOK_FILE_COLUMN = { cover: "cover_path", sample: "sample_path" } as const;
+type BookFileKind = keyof typeof BOOK_FILE_COLUMN;
+
+/** Records a file the admin's browser just uploaded; removes the old one. */
+export async function saveBookFile(bookId: string, kind: BookFileKind, path: string): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  const column = BOOK_FILE_COLUMN[kind];
+  const folder = kind === "cover" ? "covers" : "samples";
+  const validExt = kind === "cover" ? /\.(jpe?g|png|webp)$/i : /\.pdf$/i;
+  if (!column || !UUID.test(bookId) || !path.startsWith(`${folder}/${bookId}/`) || !validExt.test(path)) {
+    return { error: "Invalid file." };
+  }
+  const supabase = await createClient();
+  const { data: book } = await supabase.from("books").select(column).eq("id", bookId).single();
+  const old = (book as Record<string, string | null> | null)?.[column];
+  const { error } = await supabase.from("books").update({ [column]: path }).eq("id", bookId);
+  if (error) return dbError(error);
+  if (old && old !== path) await supabase.storage.from(BOOK_BUCKET).remove([old]);
+  updateTag("books");
+  return ok(kind === "cover" ? "Cover uploaded." : "Sample PDF uploaded.");
+}
+
+export async function removeBookFile(_p: FormState, fd: FormData): Promise<FormState> {
+  if (!(await getAdmin())) return DENIED;
+  const id = str(fd, "id");
+  const column = BOOK_FILE_COLUMN[str(fd, "kind") as BookFileKind];
+  if (!UUID.test(id) || !column) return { error: "Invalid request." };
+  const supabase = await createClient();
+  const { data: book } = await supabase.from("books").select(column).eq("id", id).single();
+  const old = (book as Record<string, string | null> | null)?.[column];
+  const { error } = await supabase.from("books").update({ [column]: null }).eq("id", id);
+  if (error) return dbError(error);
+  if (old) await supabase.storage.from(BOOK_BUCKET).remove([old]);
+  updateTag("books");
+  return ok("File removed.");
+}
+
+// ---------- Book orders ----------
+const ORDER_FLOW: Record<string, string[]> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["shipped", "cancelled"],
+  shipped: ["delivered", "cancelled"],
+  delivered: [],
+  cancelled: [],
+};
+
+/**
+ * Moves an order along pending -> confirmed -> shipped -> delivered (or
+ * cancelled). Confirming a paid order also marks its bKash/Nagad payment as
+ * verified; cancelling rejects a still-pending payment. Cancelling returns
+ * the copies to stock (database trigger).
+ */
+export async function setBookOrderStatus(_p: FormState, fd: FormData): Promise<FormState> {
+  const admin = await getAdmin();
+  if (!admin) return DENIED;
+  const id = str(fd, "id");
+  const status = str(fd, "status");
+  const adminNote = optStr(fd, "admin_note");
+  if (!UUID.test(id)) return { error: "Invalid order." };
+  if (adminNote && adminNote.length > 500) return { error: "Keep the note under 500 characters." };
+
+  const supabase = await createClient();
+  const { data: order, error: readError } = await supabase
+    .from("book_orders")
+    .select("id, status, payment:payments(id, status, method, gateway_status)")
+    .eq("id", id)
+    .single();
+  if (readError) return dbError(readError);
+  const payment = order.payment as unknown as { id: string; status: string } | null;
+
+  if (status && status !== order.status) {
+    if (!ORDER_FLOW[order.status]?.includes(status)) return { error: `A ${order.status} order cannot be marked ${status}.` };
+    if (status === "confirmed" && payment && payment.status !== "pending" && payment.status !== "completed") {
+      return { error: "This order's payment was rejected, so it cannot be confirmed." };
+    }
+    // Payment first, so a confirmed order always has a verified payment.
+    if (payment?.status === "pending" && (status === "confirmed" || status === "cancelled")) {
+      const update =
+        status === "confirmed"
+          ? { status: "completed", verified_by: admin.id, paid_at: new Date().toISOString() }
+          : { status: "failed", verified_by: admin.id };
+      const { error: payError } = await supabase.from("payments").update(update).eq("id", payment.id).eq("status", "pending");
+      if (payError) return dbError(payError);
+    }
+  }
+
+  const { error } = await supabase
+    .from("book_orders")
+    .update({ ...(status && status !== order.status ? { status } : {}), admin_note: adminNote })
+    .eq("id", id);
+  if (error) return dbError(error);
+  if (status === "cancelled") updateTag("books");
+  return ok("Order updated.");
 }
 
 // =====================================================================

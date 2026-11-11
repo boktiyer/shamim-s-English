@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgeCheck, BookOpen, Bell, CreditCard, FileText, GraduationCap, LayoutDashboard, Library, UserRound, Users } from "lucide-react";
+import { BadgeCheck, BookOpen, Bell, CreditCard, FileText, GraduationCap, LayoutDashboard, Library, Package, UserRound, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const dashboardNav = [
@@ -10,7 +10,7 @@ export const dashboardNav = [
   { title: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { title: "Notes & PDFs", href: "/dashboard/notes", icon: FileText },
   { title: "Notices", href: "/dashboard/notices", icon: Bell },
-  { title: "Payments", href: "/dashboard/payments", icon: CreditCard },
+  { title: "Payments & Orders", href: "/dashboard/payments", icon: CreditCard },
   { title: "Profile", href: "/dashboard/profile", icon: UserRound },
 ];
 
@@ -21,6 +21,7 @@ export const adminNav = [
   { title: "Students", href: "/admin/students", icon: Users },
   { title: "Courses", href: "/admin/courses", icon: BookOpen },
   { title: "Books", href: "/admin/books", icon: Library },
+  { title: "Book Orders", href: "/admin/orders", icon: Package },
   { title: "Notices", href: "/admin/notices", icon: Bell },
 ];
 
