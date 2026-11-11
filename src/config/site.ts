@@ -59,6 +59,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Quick Links",
     items: [
       { title: "About Teacher", href: "/#about" },
+      { title: "Student Achievements", href: "/#achievements" },
       { title: "Success Stories", href: "/#stories" },
       { title: "FAQ", href: "/#faq" },
       { title: "Login", href: "/login" },
