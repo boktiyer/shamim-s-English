@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseEnv } from "@/lib/supabase/env";
@@ -20,9 +20,9 @@ export type SessionUser = {
 
 /** The logged-in user, or null. Cached for the duration of one request. */
 export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
-  // Read cookies first so pages using this are always rendered per request
-  // (never baked into static HTML), even before Supabase is configured.
-  await cookies();
+  // Always run at request time (never during prerendering): the session
+  // check reads cookies and Supabase compares token expiry with the clock.
+  await connection();
   if (!getSupabaseEnv()) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
