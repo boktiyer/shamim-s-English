@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated: all migrations in one file for the SQL Editor
+supabase/setup-all.sql
