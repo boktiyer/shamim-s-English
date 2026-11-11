@@ -1,14 +1,9 @@
-import { Hind_Siliguri, Playfair_Display } from "next/font/google";
+import { Hind_Siliguri, Inter } from "next/font/google";
 
-/*
- * Body text uses Times New Roman (a system font, so nothing to download).
- * See --font-sans in src/app/globals.css.
- */
-
-/** Headings and bold display text — elegant serif. */
-export const fontDisplay = Playfair_Display({
+/** All English text (body and headings). */
+export const fontBody = Inter({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-body",
   display: "swap",
 });
 

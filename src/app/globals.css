@@ -22,8 +22,8 @@
 @theme inline {
   /* Typography: fonts are loaded in src/lib/fonts.ts */
   /* Bangla characters automatically fall back to Hind Siliguri */
-  --font-sans: "Times New Roman", Times, var(--font-bangla), serif;
-  --font-heading: var(--font-display), "Times New Roman", var(--font-bangla), serif;
+  --font-sans: var(--font-body), var(--font-bangla), ui-sans-serif, sans-serif;
+  --font-heading: var(--font-body), var(--font-bangla), ui-sans-serif, sans-serif;
   --font-bangla: var(--font-bangla);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
