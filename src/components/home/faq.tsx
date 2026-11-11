@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { faqs } from "@/data/home";
 import {
@@ -23,15 +23,25 @@ export function Faq() {
           <p className="mt-4 text-lead">
             Can&apos;t find your answer? Our support team is happy to help.
           </p>
-          <Link
-            href={siteConfig.social.whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonClass({ variant: "outline", size: "lg", className: "mt-6 h-11 px-5" })}
-          >
-            <MessageCircle data-icon="inline-start" aria-hidden />
-            Chat with us
-          </Link>
+          {siteConfig.social.whatsapp ? (
+            <Link
+              href={siteConfig.social.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClass({ variant: "outline", size: "lg", className: "mt-6 h-11 px-5" })}
+            >
+              <MessageCircle data-icon="inline-start" aria-hidden />
+              Chat with us
+            </Link>
+          ) : (
+            <a
+              href={`tel:+88${siteConfig.contact.phone.replace(/\D/g, "")}`}
+              className={buttonClass({ variant: "outline", size: "lg", className: "mt-6 h-11 px-5" })}
+            >
+              <Phone data-icon="inline-start" aria-hidden />
+              Call {siteConfig.contact.phone}
+            </a>
+          )}
         </div>
 
         <Accordion className="gap-3 lg:col-span-8">

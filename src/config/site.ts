@@ -2,14 +2,19 @@
  * Central site settings. Change the name, contact details or menu links
  * here and every page picks it up automatically.
  *
- * NOTE: Contact details and social links below are placeholders.
  */
 export const siteConfig = {
   name: "Shamim's English",
   teacherName: "Shamim Sir (CU)",
   description:
     "HSC and university admission English, made simple. Learn from Shamim Sir with structured courses, books and exam-focused practice.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  /** Public address. Set NEXT_PUBLIC_SITE_URL (e.g. https://shamimsenglish.com); on Vercel it falls back to the production domain. */
+  url: (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000")
+  ).replace(/\/+$/, ""),
   contact: {
     phone: "01713-620014",
     /** Leave empty to hide the line in the footer */
@@ -17,13 +22,14 @@ export const siteConfig = {
     address: "Lokman Tower (3rd Floor), Lal Chand Road, Gulzar Circle, Chawkbazar, Chittagong",
     hours: "",
   },
+  /** Leave a link empty ("") to hide it. */
   social: {
-    facebook: "https://facebook.com/",
+    facebook: "",
     youtube: "https://www.youtube.com/@mmhshamimsir",
-    instagram: "https://instagram.com/",
-    whatsapp: "https://wa.me/8801700000000",
-    telegram: "https://t.me/",
-  },
+    instagram: "",
+    whatsapp: "",
+    telegram: "",
+  } as Record<"facebook" | "youtube" | "instagram" | "whatsapp" | "telegram", string>,
 } as const;
 
 export type NavItem = {

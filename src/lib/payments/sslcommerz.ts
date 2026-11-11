@@ -1,4 +1,5 @@
 import "server-only";
+import { siteConfig } from "@/config/site";
 
 /**
  * SSLCommerz (v4) helpers. SERVER ONLY — uses the store password.
@@ -20,7 +21,9 @@ function cfg() {
 
 export function isSslcommerzConfigured() {
   const c = cfg();
-  return Boolean(c.storeId && c.storePassword && process.env.SUPABASE_SECRET_KEY);
+  // Live payments need public HTTPS callback URLs.
+  const callbacksOk = c.sandbox || siteConfig.url.startsWith("https://");
+  return Boolean(c.storeId && c.storePassword && process.env.SUPABASE_SECRET_KEY && callbacksOk);
 }
 
 export function isSslcommerzSandbox() {

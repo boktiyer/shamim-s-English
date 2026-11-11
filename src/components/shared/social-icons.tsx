@@ -29,7 +29,7 @@ const socialLinks = [
   { label: "Instagram", href: siteConfig.social.instagram, icon: siInstagram },
   { label: "WhatsApp", href: siteConfig.social.whatsapp, icon: siWhatsapp },
   { label: "Telegram", href: siteConfig.social.telegram, icon: siTelegram },
-];
+].filter((l) => l.href);
 
 /** Row of round social media buttons. */
 export function SocialLinks({ className }: { className?: string }) {
