@@ -213,6 +213,12 @@
 @utility text-h3 {
   @apply text-xl leading-snug font-semibold;
 }
+/* Redaction 10 — used for the homepage hero headline (loaded in hero.tsx) */
+@utility font-redaction {
+  font-family: "Redaction 10", var(--font-body), serif;
+  letter-spacing: normal;
+}
+
 @utility text-lead {
   @apply text-lg leading-relaxed text-muted-foreground sm:text-xl;
 }

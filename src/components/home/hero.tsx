@@ -1,3 +1,4 @@
+import "@fontsource/redaction-10/700.css";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Sparkles, Trophy } from "lucide-react";
 import { authNav, siteConfig } from "@/config/site";
@@ -21,7 +22,7 @@ export function Hero() {
             HSC ও ভর্তি পরীক্ষার সেরা ইংরেজি প্রস্তুতি
           </p>
 
-          <h1 className="mt-6 text-display">
+          <h1 className="mt-6 font-redaction text-display">
             Master English with{" "}
             <span className="relative whitespace-nowrap text-primary">
               Shamim&apos;s English
