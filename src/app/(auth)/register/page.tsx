@@ -9,7 +9,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create your student account"
-      description="Join thousands of students preparing for HSC and admission with Shamim Sir."
+      description="Join 1,500+ students preparing for HSC and admission with Shamim Sir."
       footer={
         <>
           Already have an account?{" "}

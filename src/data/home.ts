@@ -133,7 +133,7 @@ export const faqs = [
   {
     question: "How do I get the printed books?",
     answer:
-      "Order from the Books section and we deliver anywhere in Bangladesh by courier. Cash on delivery is available.",
+      "Our books are free for all Shamim's English students. Register, then contact us to get your copy.",
   },
   {
     question: "Who can I contact if I need help?",

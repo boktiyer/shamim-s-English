@@ -17,7 +17,7 @@ export function SuccessStories() {
       className="bg-linear-to-b from-primary to-indigo-950 text-primary-foreground [&_.text-lead]:text-primary-foreground/80 [&_h2]:text-primary-foreground [&_p.uppercase]:text-highlight"
       eyebrow="Student success stories"
       title="Results that speak for themselves"
-      description="Thousands of students have achieved their dream results. Here are a few of their stories."
+      description="Our students have achieved their dream results. Here are a few of their stories."
     >
       {/* Horizontal scroll on phones, grid on larger screens */}
       <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">

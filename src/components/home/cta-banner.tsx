@@ -14,7 +14,7 @@ export function CtaBanner() {
           <div className="relative">
             <h2 className="text-h1">আজই শুরু করো তোমার প্রস্তুতি</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg opacity-85">
-              Join thousands of students who are already learning English the smart way.
+              Join 1,500+ students who are already learning English the smart way.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link

@@ -42,7 +42,7 @@ export function PopularCourses() {
       className="relative bg-muted/40"
       eyebrow="Popular courses"
       title="Start learning today"
-      description="Our most loved courses, chosen by thousands of students across Bangladesh."
+      description="Our most loved courses, chosen by 1,500+ students across Bangladesh."
     >
       {/* Scroll targets for the category links */}
       {courseCategories.map((c) => (
