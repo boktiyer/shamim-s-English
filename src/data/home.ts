@@ -10,6 +10,8 @@ export const teacher = {
   name: "MMH Shamim",
   title: "Shamim Sir (CU)",
   photo: "/images/shamim-sir.jpg" as string | undefined,
+  /** Photo in the homepage hero (square) */
+  heroPhoto: "/images/shamim-sir-hero.png" as string | undefined,
   qualification: "Ranked in DU B, CU B (English), CU A & GST · Co-Writer, Aspect Series",
   bio: [
     "Shamim Sir has been teaching English to HSC and admission candidates for over 5 years. His classes turn difficult grammar rules into simple, memorable patterns that students can use in the exam hall.",

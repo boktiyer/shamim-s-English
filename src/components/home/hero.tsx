@@ -83,10 +83,10 @@ export function Hero() {
         <div className="relative mx-auto w-full max-w-sm sm:max-w-md">
           <div aria-hidden className="absolute inset-4 -z-0 rotate-6 rounded-[2rem] bg-highlight/40" />
           <TeacherPhoto
-            src={teacher.photo}
+            src={teacher.heroPhoto ?? teacher.photo}
             alt={siteConfig.teacherName}
             priority
-            className="relative aspect-4/5 rounded-[2rem] shadow-2xl shadow-primary/20"
+            className="relative aspect-square rounded-[2rem] shadow-2xl shadow-primary/20 ring-4 ring-white/70"
           />
 
           {/* Name card */}
