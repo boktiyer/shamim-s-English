@@ -48,3 +48,4 @@ supabase/setup-all.sql
 .claude/skills/
 supabase/.temp/
 supabase/apply-*.sql
+.env*
