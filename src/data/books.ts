@@ -18,7 +18,7 @@ export type Book = {
   href?: string;
 };
 
-const tones = ["from-blue-800 to-indigo-900", "from-purple-700 to-violet-900", "from-emerald-700 to-teal-900", "from-rose-700 to-red-900"];
+const tones = ["from-brand-crimson to-brand-deep", "from-purple-700 to-violet-900", "from-emerald-700 to-teal-900", "from-rose-700 to-red-900"];
 
 /** Turns a published database book into the homepage card shape. */
 export function catalogToBook(
@@ -47,7 +47,7 @@ export const books: Book[] = [
     subtitle: "English Mastery for University Admission",
     free: true,
     cover: "/images/books/secret-weapon.jpg",
-    coverTone: "from-blue-800 to-indigo-900",
+    coverTone: "from-brand-crimson to-brand-deep",
   },
   {
     id: "smart-question-bank",

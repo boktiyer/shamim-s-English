@@ -65,7 +65,7 @@ const jsonLd = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3b3fc4",
+  themeColor: "#8c062c",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

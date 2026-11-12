@@ -39,7 +39,7 @@ export const courseCategories: CourseCategory[] = [
     banglaTitle: "এইচএসসি ১ম বর্ষ",
     description:
       "Build a strong foundation in grammar, reading and writing for English 1st & 2nd Paper.",
-    tone: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
+    tone: "bg-brand-blush/60 text-brand-deep dark:text-brand-blush",
   },
   {
     id: "hsc-2nd",

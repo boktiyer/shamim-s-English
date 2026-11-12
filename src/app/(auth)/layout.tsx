@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <Container className="py-10 sm:py-14 lg:py-16">
         <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border bg-card shadow-xl shadow-primary/5 lg:grid-cols-5">
           {/* Brand panel (desktop only) */}
-          <aside className="relative hidden flex-col justify-between overflow-hidden bg-linear-to-br from-primary to-indigo-950 p-10 text-primary-foreground lg:col-span-2 lg:flex">
+          <aside className="relative hidden flex-col justify-between overflow-hidden bg-brand-gradient p-10 text-primary-foreground lg:col-span-2 lg:flex">
             <div aria-hidden className="absolute -top-20 -right-20 size-64 rounded-full bg-white/10" />
             <div aria-hidden className="absolute -bottom-24 -left-16 size-72 rounded-full bg-highlight/20" />
 

@@ -7,8 +7,8 @@ import { categoryLabels, ProgressBar } from "./ui";
 import { cn } from "@/lib/utils";
 
 const tones: Record<string, string> = {
-  hsc_1st: "from-sky-500 to-indigo-600",
-  hsc_2nd: "from-indigo-600 to-violet-700",
+  hsc_1st: "from-brand-crimson to-brand-deep",
+  hsc_2nd: "from-brand-plum to-brand-deep",
   admission: "from-amber-500 to-rose-600",
 };
 

@@ -8,8 +8,8 @@ import { buttonClass } from "@/lib/button-class";
 import { cn } from "@/lib/utils";
 
 const thumbnailTones: Record<Course["category"], string> = {
-  "hsc-1st": "from-sky-500 to-indigo-600",
-  "hsc-2nd": "from-indigo-600 to-violet-700",
+  "hsc-1st": "from-brand-crimson to-brand-deep",
+  "hsc-2nd": "from-brand-plum to-brand-deep",
   admission: "from-amber-500 to-rose-600",
 };
 

@@ -9,7 +9,7 @@ import { TeacherPhoto } from "@/components/shared/teacher-photo";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-secondary/80 via-background to-background">
+    <section className="relative overflow-hidden bg-brand-soft">
       {/* Soft background shapes */}
       <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-primary/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute top-1/2 -left-32 size-80 rounded-full bg-highlight/20 blur-3xl" />

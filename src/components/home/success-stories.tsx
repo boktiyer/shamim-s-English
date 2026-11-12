@@ -14,7 +14,7 @@ export function SuccessStories() {
   return (
     <Section
       id="stories"
-      className="bg-linear-to-b from-primary to-indigo-950 text-primary-foreground [&_.text-lead]:text-primary-foreground/80 [&_h2]:text-primary-foreground [&_p.uppercase]:text-highlight"
+      className="bg-brand-gradient text-primary-foreground [&_.text-lead]:text-primary-foreground/80 [&_h2]:text-primary-foreground [&_p.uppercase]:text-highlight"
       eyebrow="Student success stories"
       title="Results that speak for themselves"
       description="Our students have achieved their dream results. Here are a few of their stories."

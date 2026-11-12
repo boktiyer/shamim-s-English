@@ -39,7 +39,7 @@ async function BookDetails({ params }: Pick<PageProps<"/books/[slug]">, "params"
     <div className="mx-auto max-w-5xl space-y-10">
       <article className="grid gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:gap-12">
         <div className="mx-auto w-full max-w-72 md:max-w-none">
-          <BookCover book={{ title: book.title, subtitle: book.subtitle ?? "", cover: book.cover ?? undefined, coverTone: "from-blue-800 to-indigo-900" }} />
+          <BookCover book={{ title: book.title, subtitle: book.subtitle ?? "", cover: book.cover ?? undefined, coverTone: "from-brand-crimson to-brand-deep" }} />
         </div>
 
         <div>

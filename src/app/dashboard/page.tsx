@@ -54,7 +54,7 @@ async function Overview({ searchParams }: Pick<PageProps<"/dashboard">, "searchP
       {params.message === "password_updated" && <FormAlert type="success">Your password has been updated.</FormAlert>}
 
       {/* Welcome */}
-      <section className="relative overflow-hidden rounded-2xl bg-linear-to-br from-primary to-indigo-950 p-6 text-primary-foreground sm:p-8">
+      <section className="relative overflow-hidden rounded-2xl bg-brand-gradient p-6 text-primary-foreground sm:p-8">
         <div aria-hidden className="absolute -top-16 -right-16 size-56 rounded-full bg-white/10" />
         <p className="relative text-sm text-primary-foreground/80">Welcome back,</p>
         <h1 className="relative mt-1 text-h1 text-primary-foreground">{profile?.full_name || "Student"} 👋</h1>

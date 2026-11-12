@@ -17,7 +17,7 @@ export function TeacherPhoto({ src, alt, className, priority }: TeacherPhotoProp
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-linear-to-br from-primary/90 via-primary to-indigo-900",
+        "relative overflow-hidden bg-brand-gradient",
         className
       )}
     >
