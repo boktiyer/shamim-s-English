@@ -31,6 +31,25 @@ const socialLinks = [
   { label: "Telegram", href: siteConfig.social.telegram, icon: siTelegram },
 ].filter((l) => l.href);
 
+/** "Join our Facebook Group" button (hidden when no group link is set). */
+export function FacebookGroupButton({ className }: { className?: string }) {
+  if (!siteConfig.social.facebookGroup) return null;
+  return (
+    <a
+      href={siteConfig.social.facebookGroup}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#1877F2] px-5 text-sm font-semibold whitespace-nowrap text-white shadow-sm transition-colors hover:bg-[#166FE5]",
+        className
+      )}
+    >
+      <BrandIcon icon={siFacebook} className="size-5" />
+      Join our Facebook Group
+    </a>
+  );
+}
+
 /** Row of round social media buttons. */
 export function SocialLinks({ className }: { className?: string }) {
   return (

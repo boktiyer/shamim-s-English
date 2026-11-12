@@ -5,6 +5,7 @@ import { heroStats, teacher } from "@/data/home";
 import { buttonClass } from "@/lib/button-class";
 import { Container } from "@/components/layout/container";
 import { TeacherPhoto } from "@/components/shared/teacher-photo";
+import { FacebookGroupButton } from "@/components/shared/social-icons";
 
 export function AboutTeacher() {
   return (
@@ -57,7 +58,7 @@ export function AboutTeacher() {
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
               </div>
             ))}
-            <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row">
+            <div className="flex w-full flex-col gap-3 sm:ml-auto sm:w-auto sm:flex-row sm:flex-wrap">
               <Link
                 href="/#courses"
                 className={buttonClass({ size: "lg", className: "h-11 px-6" })}
@@ -76,6 +77,7 @@ export function AboutTeacher() {
                 <CirclePlay data-icon="inline-start" aria-hidden />
                 Watch classes on YouTube
               </a>
+              <FacebookGroupButton />
             </div>
           </div>
         </div>

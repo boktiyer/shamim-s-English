@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { footerNav, siteConfig } from "@/config/site";
 import { Logo } from "@/components/shared/logo";
-import { SocialLinks } from "@/components/shared/social-icons";
+import { FacebookGroupButton, SocialLinks } from "@/components/shared/social-icons";
 import { Container } from "./container";
 
 /** Cached so the page can still be prerendered (required by Cache Components). */
@@ -31,6 +31,7 @@ export function SiteFooter() {
             {siteConfig.description}
           </p>
           <SocialLinks className="mt-6" />
+          <FacebookGroupButton className="mt-4" />
         </div>
 
         {/* Link groups */}
@@ -80,7 +81,17 @@ export function SiteFooter() {
           <p>
             © <CopyrightYear /> {siteConfig.name}. All rights reserved.
           </p>
-          <p>Made with care for Bangladeshi students.</p>
+          <p>
+            Developed by{" "}
+            <a
+              href="https://boktiyer-hossen-portfolio.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Boktiyer Hossen
+            </a>
+          </p>
         </Container>
       </div>
     </footer>

@@ -24,12 +24,13 @@ export const siteConfig = {
   },
   /** Leave a link empty ("") to hide it. */
   social: {
-    facebook: "",
+    facebook: "https://www.facebook.com/share/1UfP99kn5f/",
+    facebookGroup: "https://www.facebook.com/share/g/1JEcnxLRJh/",
     youtube: "https://www.youtube.com/@mmhshamimsir",
     instagram: "",
     whatsapp: "",
     telegram: "",
-  } as Record<"facebook" | "youtube" | "instagram" | "whatsapp" | "telegram", string>,
+  } as Record<"facebook" | "facebookGroup" | "youtube" | "instagram" | "whatsapp" | "telegram", string>,
 } as const;
 
 export type NavItem = {
