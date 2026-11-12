@@ -6,6 +6,7 @@ import { heroStats, teacher } from "@/data/home";
 import { buttonClass } from "@/lib/button-class";
 import { Container } from "@/components/layout/container";
 import { TeacherPhoto } from "@/components/shared/teacher-photo";
+import { StudentTotal } from "@/components/shared/student-total";
 
 export function Hero() {
   return (
@@ -71,7 +72,7 @@ export function Hero() {
               <div key={stat.label}>
                 <dt className="sr-only">{stat.label}</dt>
                 <dd className="font-heading text-2xl font-bold sm:text-3xl">
-                  {stat.value}
+                  {stat.countsStudents ? <StudentTotal /> : stat.value}
                 </dd>
                 <dd className="text-sm text-muted-foreground">{stat.label}</dd>
               </div>

@@ -6,6 +6,7 @@ import { buttonClass } from "@/lib/button-class";
 import { Container } from "@/components/layout/container";
 import { TeacherPhoto } from "@/components/shared/teacher-photo";
 import { FacebookGroupButton } from "@/components/shared/social-icons";
+import { StudentTotal } from "@/components/shared/student-total";
 
 export function AboutTeacher() {
   return (
@@ -54,7 +55,9 @@ export function AboutTeacher() {
           <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 border-t pt-8">
             {heroStats.map((stat) => (
               <div key={stat.label}>
-                <p className="font-heading text-2xl font-bold text-primary">{stat.value}</p>
+                <p className="font-heading text-2xl font-bold text-primary">
+                  {stat.countsStudents ? <StudentTotal /> : stat.value}
+                </p>
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
               </div>
             ))}

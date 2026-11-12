@@ -1,7 +1,10 @@
 /** Dummy homepage content: stats, features, testimonials and FAQs. */
 
-export const heroStats = [
-  { value: "1,500+", label: "Students" },
+/** Students before online enrollment. Active enrollments are added on top of this. */
+export const studentBase = 1500;
+
+export const heroStats: { value: string; label: string; countsStudents?: boolean }[] = [
+  { value: "1,500+", label: "Students", countsStudents: true },
   { value: "5+", label: "Years Teaching" },
   { value: "4.9★", label: "Average Rating" },
 ];

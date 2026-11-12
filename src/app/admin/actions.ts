@@ -396,6 +396,7 @@ export async function approvePayment(_p: FormState, fd: FormData): Promise<FormS
         { onConflict: "user_id,course_id" }
       );
     if (enrollError) return dbError(enrollError);
+    updateTag("student-stats");
   }
   // Book payment -> confirm the linked order.
   if (payment.book_id) {
@@ -455,7 +456,9 @@ export async function grantEnrollment(_p: FormState, fd: FormData): Promise<Form
     },
     { onConflict: "user_id,course_id" }
   );
-  return error ? dbError(error) : ok(`Access granted to ${studentId}.`);
+  if (error) return dbError(error);
+  updateTag("student-stats");
+  return ok(`Access granted to ${studentId}.`);
 }
 
 export async function setEnrollmentStatus(_p: FormState, fd: FormData): Promise<FormState> {
@@ -468,7 +471,9 @@ export async function setEnrollmentStatus(_p: FormState, fd: FormData): Promise<
   const update: { status: string; expires_at?: null } = { status };
   if (status === "active") update.expires_at = null; // re-activating gives open-ended access
   const { error } = await supabase.from("enrollments").update(update).eq("id", id);
-  return error ? dbError(error) : ok("Enrollment updated.");
+  if (error) return dbError(error);
+  updateTag("student-stats");
+  return ok("Enrollment updated.");
 }
 
 // =====================================================================

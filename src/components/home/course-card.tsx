@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Clock, Star, Users } from "lucide-react";
 import { getCategory, type Course } from "@/data/courses";
-import { formatCompact, formatTaka } from "@/lib/format";
+import { formatTaka } from "@/lib/format";
+import { CountUp } from "@/components/shared/count-up";
 import { Badge } from "@/components/ui/badge";
 import { buttonClass } from "@/lib/button-class";
 import { cn } from "@/lib/utils";
@@ -99,7 +100,7 @@ export function CourseCard({ course }: { course: Course }) {
           {course.students && (
             <li className="flex items-center gap-1.5">
               <Users className="size-4" aria-hidden />
-              {formatCompact(course.students)}+ students
+              <CountUp value={course.students} suffix="+" /> students
             </li>
           )}
         </ul>

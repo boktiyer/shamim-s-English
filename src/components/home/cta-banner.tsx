@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { authNav } from "@/config/site";
 import { buttonClass } from "@/lib/button-class";
 import { Container } from "@/components/layout/container";
+import { StudentTotal } from "@/components/shared/student-total";
 
 export function CtaBanner() {
   return (
@@ -14,7 +15,7 @@ export function CtaBanner() {
           <div className="relative">
             <h2 className="text-h1">আজই শুরু করো তোমার প্রস্তুতি</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg opacity-85">
-              Join 1,500+ students who are already learning English the smart way.
+              Join <StudentTotal /> students who are already learning English the smart way.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link

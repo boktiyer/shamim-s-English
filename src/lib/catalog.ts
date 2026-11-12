@@ -45,6 +45,24 @@ export async function getPublishedCourses(): Promise<CatalogCourse[]> {
   return (data ?? []) as CatalogCourse[];
 }
 
+export type StudentStats = { total: number; bySlug: Record<string, number> };
+
+/** Students with an active enrollment (total and per course slug). Counts only. */
+export async function getStudentStats(): Promise<StudentStats> {
+  "use cache";
+  cacheTag("student-stats");
+  cacheLife("minutes");
+  const supabase = publicClient();
+  if (!supabase) return { total: 0, bySlug: {} };
+  const { data, error } = await supabase.rpc("public_student_stats");
+  if (error) {
+    console.error("[student-stats]", error.message);
+    return { total: 0, bySlug: {} };
+  }
+  const stats = (data ?? {}) as { total?: number; by_slug?: Record<string, number> };
+  return { total: Number(stats.total ?? 0), bySlug: stats.by_slug ?? {} };
+}
+
 export async function getPublishedCourseBySlug(slug: string): Promise<CatalogCourse | null> {
   const courses = await getPublishedCourses();
   return courses.find((c) => c.slug === slug) ?? null;

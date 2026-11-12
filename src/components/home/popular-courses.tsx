@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { courseCategories, type Course, type CourseCategoryId } from "@/data/courses";
 import { Section } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
+import { CountUp } from "@/components/shared/count-up";
 import { CourseCard } from "./course-card";
 
 type Filter = "all" | CourseCategoryId;
@@ -19,7 +20,7 @@ function filterFromHash(hash: string): Filter | null {
   return courseCategories.some((c) => c.id === id) ? (id as CourseCategoryId) : null;
 }
 
-export function PopularCourses({ courses }: { courses: Course[] }) {
+export function PopularCourses({ courses, totalStudents }: { courses: Course[]; totalStudents: number }) {
   const [active, setActive] = useState<Filter>("all");
 
   // Category cards link to "#courses-<id>": switch the filter when that happens.
@@ -42,7 +43,11 @@ export function PopularCourses({ courses }: { courses: Course[] }) {
       className="relative bg-muted/40"
       eyebrow="Popular courses"
       title="Start learning today"
-      description="Our most loved courses, chosen by 1,500+ students across Bangladesh."
+      description={
+        <>
+          Our most loved courses, chosen by <CountUp value={totalStudents} suffix="+" /> students across Bangladesh.
+        </>
+      }
     >
       {/* Scroll targets for the category links */}
       {courseCategories.map((c) => (
