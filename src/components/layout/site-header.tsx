@@ -9,7 +9,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/85 backdrop-blur supports-backdrop-filter:bg-background/70">
       <Container className="flex h-16 items-center justify-between gap-4">
-        <Logo className="h-12" />
+        <Logo className="h-10 sm:h-12" />
 
         {/* Desktop navigation (large screens) */}
         <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">

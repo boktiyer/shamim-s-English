@@ -15,7 +15,7 @@ export function Logo({ className }: { className?: string }) {
         priority
         className="h-full w-auto"
       />
-      <span className="font-redaction text-xl leading-none font-bold whitespace-nowrap text-primary sm:text-2xl">
+      <span className="font-redaction text-lg leading-none font-bold whitespace-nowrap text-primary sm:text-2xl">
         {siteConfig.name}
       </span>
     </Link>
